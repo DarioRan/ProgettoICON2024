@@ -1,7 +1,7 @@
 from heapq import heappop, heappush
 from itertools import count
 
-__all__ = ["astar_path", "astar_path_length"]
+__all__ = ["astar_path"]
 
 def _weight_function(G, weight):
     """Restituisce una funzione che restituisce il peso di un arco.
@@ -112,33 +112,3 @@ def astar_path(G, source, target, heuristic=None, weight="weight"):
             push(queue, (ncost + h, next(c), neighbor, ncost, curnode))
 
     raise Exception(f"Nodo {target} non raggiungibile da {source}")
-
-
-def astar_path_length(G, source, target, heuristic=None, weight="weight"):
-    """Restituisce la lunghezza del percorso più breve tra sorgente e destinazione utilizzando
-    l'algoritmo A* ("A-star").
-
-    Parametri
-    ----------
-    G : grafo
-
-    source : nodo
-       Nodo di partenza per il percorso
-
-    target : nodo
-       Nodo finale per il percorso
-
-    heuristic : funzione
-       Una funzione per valutare la stima della distanza
-       da un nodo alla destinazione.
-
-    weight : stringa o funzione che rappresenta il peso di un arco.
-
-    """
-    if source not in G or target not in G:
-        msg = f"Sia la sorgente {source} che la destinazione {target} non sono presenti nel grafo"
-        raise Exception(msg)
-
-    weight = _weight_function(G, weight)
-    path = astar_path(G, source, target, heuristic, weight)
-    return sum(weight(u, v, G[u][v]) for u, v in zip(path[:-1], path[1:]))

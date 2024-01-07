@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Finder</title>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <button onclick="calculatePath()">Calcola percorso</button>
+    <script>
+        var map = L.map('map').setView([40.7, -73.9], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var startMarker, endMarker;
+
+        map.on('click', function (e) {
+            if (!startMarker) {
+                startMarker = L.marker(e.latlng).addTo(map);
+                sendCoords('/select_start', { lat: e.latlng.lat, lon: e.latlng.lng });
+            } else if (!endMarker) {
+                endMarker = L.marker(e.latlng).addTo(map);
+                sendCoords('/select_end', { lat: e.latlng.lat, lon: e.latlng.lng });
+            }
+        });
+
+        function calculatePath() {
+            if (startMarker && endMarker) {
+                sendRequest('/calculate_path', function (response) {
+                    var path = response.path;
+                    var streetNames = response.street_names;
+                    var totalDistance = response.total_distance;
+
+                    L.polyline(path, { color: 'blue' }).addTo(map);
+
+                    startMarker.bindPopup('Partenza').openPopup();
+                    endMarker.bindPopup('Arrivo').openPopup();
+
+                    alert('Le strade da percorrere sono: ' + streetNames.join(', '));
+                    alert('La lunghezza totale del percorso è: ' + (totalDistance / 1000).toFixed(2) + ' km');
+                });
+            } else {
+                alert('Seleziona prima un punto di partenza e un punto di arrivo.');
+            }
+        }
+
+        function sendCoords(url, coords) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(coords)
+            });
+        }
+
+        function sendRequest(url, callback) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(callback);
+        }
+    </script>
+</body>
+</html>

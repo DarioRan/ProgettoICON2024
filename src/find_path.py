@@ -141,7 +141,7 @@ def calculate_distance(graph, path):
     return total_distance
 
 
-def generate_map(graph, shortest_path):
+def generate_map(graph, shortest_path, start_coords=None, end_coords=None):
     """Genera una mappa con il percorso evidenziato.
 
     Parametri
@@ -150,6 +150,12 @@ def generate_map(graph, shortest_path):
 
     shortest_path : Lista di nodi
         Percorso nel grafo da evidenziare sulla mappa.
+
+    start_coords : Tuple, opzionale
+        Coordinate di partenza (latitudine, longitudine).
+
+    end_coords : Tuple, opzionale
+        Coordinate di arrivo (latitudine, longitudine).
     """
     map_center = [float(graph.nodes[shortest_path[0]]['y']), float(graph.nodes[shortest_path[0]]['x'])]
     mymap = folium.Map(location=map_center, zoom_start=14)
@@ -158,9 +164,11 @@ def generate_map(graph, shortest_path):
     coordinates = [(float(graph.nodes[node]['y']), float(graph.nodes[node]['x'])) for node in shortest_path]
     folium.PolyLine(coordinates, color='blue', weight=5, opacity=1).add_to(mymap)
 
-    # Aggiungi i marcatori per i punti di partenza e arrivo
-    folium.Marker([lat_start, lon_start], popup='Start', icon=folium.Icon(color='green')).add_to(mymap)
-    folium.Marker([lat_end, lon_end], popup='End', icon=folium.Icon(color='red')).add_to(mymap)
+    # Aggiungi i marcatori per i punti di partenza e arrivo se forniti
+    if start_coords:
+        folium.Marker([start_coords[0], start_coords[1]], popup='Start', icon=folium.Icon(color='green')).add_to(mymap)
+    if end_coords:
+        folium.Marker([end_coords[0], end_coords[1]], popup='End', icon=folium.Icon(color='red')).add_to(mymap)
 
     # Visualizza la mappa
     mymap.save('map.html')

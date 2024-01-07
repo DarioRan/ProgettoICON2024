@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Leggi il CSV in un DataFrame
-dataframe = pd.read_csv('food_order_new.csv')
+dataframe = pd.read_csv('food_order_new_2.csv')
 
 numero_righe = dataframe.shape[0]
 print(f"Il CSV new ha {numero_righe} righe.")

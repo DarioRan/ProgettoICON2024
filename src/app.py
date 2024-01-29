@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
-from shortest_path import calculate_distance, find_shortest_path, generate_map
+from find_path import calculate_distance, find_shortest_path, generate_map
 
 app = Flask(__name__)
 

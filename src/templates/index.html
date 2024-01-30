@@ -7,16 +7,36 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        #map {
+        .map {
             height: 400px;
+            width: 600px
         }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <h3>Inserisci il punto di partenza e di arrivo cliccando sulla mappa.</h3>
+    <div id="map" class="map"></div>
+    </br></br>
     <button onclick="calculatePath()">Calcola percorso</button>
+    </br></br>
+    <div id="map-container" class="map"></div>
     <script>
-        var map = L.map('map').setView([40.7, -73.9], 12);
+        var map = L.map('map').setView([40.7, -73.9], 10);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -41,18 +61,23 @@
                     var streetNames = response.street_names;
                     var totalDistance = response.total_distance;
 
-                    L.polyline(path, { color: 'blue' }).addTo(map);
-
                     startMarker.bindPopup('Partenza').openPopup();
                     endMarker.bindPopup('Arrivo').openPopup();
 
-                    alert('Le strade da percorrere sono: ' + streetNames.join(', '));
-                    alert('La lunghezza totale del percorso è: ' + (totalDistance / 1000).toFixed(2) + ' km');
+                    // Aspetta che la mappa sia completamente pronta prima di aggiungere la polilinea
+                    map.on('load', function () {
+                        L.polyline(path, { color: 'blue' }).addTo(map);
+                    });
+
+                    console.log(response.map);
+                    document.getElementById("map-container").innerHTML = response.map;
+
                 });
             } else {
                 alert('Seleziona prima un punto di partenza e un punto di arrivo.');
             }
         }
+
 
         function sendCoords(url, coords) {
             fetch(url, {

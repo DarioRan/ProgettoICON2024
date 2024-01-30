@@ -140,7 +140,6 @@ def calculate_distance(graph, path):
             total_distance += edge_data[0]['length']
     return total_distance
 
-
 def generate_map(graph, shortest_path, start_coords=None, end_coords=None):
     """Genera una mappa con il percorso evidenziato.
 
@@ -156,6 +155,11 @@ def generate_map(graph, shortest_path, start_coords=None, end_coords=None):
 
     end_coords : Tuple, opzionale
         Coordinate di arrivo (latitudine, longitudine).
+
+    Restituisce
+    -------
+    str
+        HTML della mappa generata.
     """
     map_center = [float(graph.nodes[shortest_path[0]]['y']), float(graph.nodes[shortest_path[0]]['x'])]
     mymap = folium.Map(location=map_center, zoom_start=14)
@@ -170,8 +174,10 @@ def generate_map(graph, shortest_path, start_coords=None, end_coords=None):
     if end_coords:
         folium.Marker([end_coords[0], end_coords[1]], popup='End', icon=folium.Icon(color='red')).add_to(mymap)
 
-    # Visualizza la mappa
-    mymap.save('map.html')
+    # Restituisci l'HTML della mappa
+    return mymap._repr_html_()
+
+
 
 
 if __name__ == "__main__":

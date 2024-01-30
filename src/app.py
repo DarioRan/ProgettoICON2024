@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
 from find_path import calculate_distance, find_shortest_path, generate_map
-from folium import IFrame
 
 app = Flask(__name__)
 

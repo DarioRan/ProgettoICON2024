@@ -1,15 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Path Finder</title>
+    <title>Food Delivery</title>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            background-color: #FFD700; /* Colore arancio chiaro per lo sfondo del body */
+        }
+
+        #form-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
         .map {
-            height: 400px;
-            width: 600px
+            width: 100%;
+            height: 300px; /* Regola l'altezza come desiderato */
         }
 
         button {
@@ -26,15 +50,117 @@
             background-color: #2980b9;
         }
 
+        select, input {
+            font-family: 'Montserrat', sans-serif;
+            padding: 8px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px; /* Aggiunto spazio inferiore per separare gli elementi */
+        }
+
     </style>
 </head>
 <body>
-    <h3>Inserisci il punto di partenza e di arrivo cliccando sulla mappa.</h3>
-    <div id="map" class="map"></div>
-    </br></br>
-    <button onclick="calculatePath()">Calcola percorso</button>
-    </br></br>
-    <div id="map-container" class="map"></div>
+
+    <div id="form-container">
+        <p align="left" style="font-size: 18px;">Seleziona il tipo di cucina </p>
+        <select id="cuisineTypeSelect" placeholder="Tipo di cucina" style="width: 100%;">
+            <option value="" disabled selected>Tipo di cucina</option>
+            {% for cuisine_type in cuisine_types %}
+                <option value="{{ cuisine_type }}">{{ cuisine_type }}</option>
+            {% endfor %}
+        </select>
+
+
+        <div id="dishesContainer">
+            <p align="left" style="font-size: 18px;">Seleziona la pietanza</p>
+            <!-- Aggiungi questo div per contenere gli input delle pietanze -->
+            <div id="dishesInputs">
+                <select class="dishSelect" placeholder="Pietanza" style="width: 100%;">
+                    <option value="" disabled selected>Pietanza</option>
+                    <!-- Il menu a tendina dei piatti verrà popolato dinamicamente con JavaScript -->
+                </select>
+                <br>
+            </div>
+            <!-- Aggiungi questo pulsante per aggiungere nuovi input delle pietanze -->
+            <button onclick="handleAddDishClick()" style="border-radius: 50%; background-color: #FFD700; color:
+            white; padding: 10px 16px; font-size: 20px; border: none;">+</button>
+
+        </div>
+
+
+        <br>
+        <p align="left" style="font-size: 18px;">Inserisci i minuti di attesa</p> <input type="number">
+        <br><br>
+        <p align="left" style="font-size: 18px;">Seleziona il punto di consegna</p>
+        <div id="map" class="map"></div>
+
+        </br></br>
+        <button onclick="handleAddDishClick()" style="border-radius: 10px; background-color: #FFD700; color:
+            white; padding: 10px 16px; font-size: 20px; border: none;">Trova ristorante</button>
+        </br></br>
+        <div id="map-container" class="map"></div>
+    </div>
+
+    <script>
+        // Popola il secondo menu a tendina con i dati già caricati dal server
+        var cuisineDishesMap = {{ cuisine_dishes_map|tojson|safe }};
+        var cuisineTypeSelect = document.getElementById("cuisineTypeSelect");
+        var dishInputsContainer = document.getElementById("dishesInputs");
+        var maxDishInputs = 10;  // Modifica questo valore se vuoi cambiare il numero massimo di menu a tendina
+
+        // Funzione che gestisce il cambio del tipo di cucina
+        cuisineTypeSelect.addEventListener("change", function () {
+            var selectedCuisineType = cuisineTypeSelect.value;
+            var dishes = cuisineDishesMap[selectedCuisineType];
+
+            // Rimuovi tutti gli input delle pietanze esistenti
+            dishInputsContainer.innerHTML = "";
+
+            // Aggiungi il primo input delle pietanze
+            addDishInput();
+
+            // Popola il primo input delle pietanze con i nuovi piatti
+            populateDishInput(dishInputsContainer.firstElementChild, dishes);
+        });
+
+        // Funzione per aggiungere un nuovo input delle pietanze
+        function addDishInput() {
+            if (dishInputsContainer.children.length < maxDishInputs) {
+                var dishSelect = document.createElement("select");
+                dishSelect.classList.add("dishSelect");
+                dishSelect.setAttribute("placeholder", "Pietanza");
+                dishSelect.style.width = "100%";
+                var option = document.createElement("option");
+                option.value = "";
+                option.disabled = true;
+                option.selected = true;
+                option.text = "Pietanza";
+                dishSelect.add(option);
+                dishInputsContainer.appendChild(dishSelect);
+                // Popola il nuovo input delle pietanze con i piatti corrispondenti al tipo di cucina selezionato
+                populateDishInput(dishSelect, cuisineDishesMap[cuisineTypeSelect.value]);
+            }
+        }
+
+        // Funzione per popolare un input delle pietanze con i nuovi piatti
+        function populateDishInput(dishInput, dishes) {
+            for (var i = 0; i < dishes.length; i++) {
+                var option = document.createElement("option");
+                option.text = dishes[i];
+                dishInput.add(option);
+            }
+        }
+
+        // Funzione che gestisce il clic sul pulsante "Aggiungi piatto"
+        function handleAddDishClick() {
+            // Aggiungi un nuovo input delle pietanze
+            addDishInput();
+        }
+    </script>
+
+
+
     <script>
         var map = L.map('map').setView([40.7, -73.9], 10);
 
@@ -45,14 +171,17 @@
         var startMarker, endMarker;
 
         map.on('click', function (e) {
-            if (!startMarker) {
-                startMarker = L.marker(e.latlng).addTo(map);
-                sendCoords('/select_start', { lat: e.latlng.lat, lon: e.latlng.lng });
-            } else if (!endMarker) {
-                endMarker = L.marker(e.latlng).addTo(map);
-                sendCoords('/select_end', { lat: e.latlng.lat, lon: e.latlng.lng });
-            }
-        });
+        if (!startMarker) {
+            startMarker = L.marker(e.latlng).addTo(map);
+            sendCoords('/select_start', { lat: e.latlng.lat, lon: e.latlng.lng });
+        } else {
+            // Rimuovi il marker esistente e aggiungi uno nuovo al nuovo punto cliccato
+            map.removeLayer(startMarker);
+            startMarker = L.marker(e.latlng).addTo(map);
+            sendCoords('/select_start', { lat: e.latlng.lat, lon: e.latlng.lng });
+        }
+    });
+
 
         function calculatePath() {
             if (startMarker && endMarker) {

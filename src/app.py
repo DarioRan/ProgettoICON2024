@@ -1,11 +1,26 @@
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
 from find_path import calculate_distance, find_shortest_path, generate_map
+import pandas as pd
 
 app = Flask(__name__)
 
 # Carica il grafo all'avvio dell'applicazione
 G = nx.read_graphml('newyork.graphml')
+
+
+df = pd.read_csv('../dataset/food_order_final.csv')
+
+cuisine_types = df['cuisine_type'].unique()
+
+cuisine_dishes_map = {}
+
+# Popola il dizionario con le informazioni necessarie
+for cuisine_type in cuisine_types:
+    dishes_list = []
+    for index, row in df[df['cuisine_type'] == cuisine_type].iterrows():
+        dishes_list.extend([dish['dish_name'] for dish in eval(row['dishes'])])
+    cuisine_dishes_map[cuisine_type] = list(set(dishes_list))
 
 # Coordinate dei punti di partenza e arrivo
 start_coords = None
@@ -13,7 +28,7 @@ end_coords = None
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', cuisine_types=cuisine_types, cuisine_dishes_map=cuisine_dishes_map)
 
 @app.route('/select_start', methods=['POST'])
 def select_start():

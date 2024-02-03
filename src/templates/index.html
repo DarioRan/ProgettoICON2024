@@ -77,6 +77,15 @@
             margin: 0 auto; /* Centro il pulsante orizzontalmente */
         }
 
+        .custom-height {
+            height: 400px; /* Imposta l'altezza desiderata in pixel o altro formato valido */
+            max-height: 80vh; /* Imposta un massimo dell'80% dell'altezza della viewport */
+            overflow: hidden; /* Nasconde l'overflow se il contenuto sfora */
+        }
+
+        #restaurantName, #restaurantRating, #PreparationTime, #DeliveryTime {
+            margin-bottom: 1px; /* Puoi regolare questo valore a seconda dello spazio desiderato */
+        }
 
     </style>
 </head>
@@ -113,17 +122,25 @@
 
 
         <br>
-        <p align="left" style="font-size: 18px;">Inserisci i minuti di attesa</p> <input type="number">
+        <p align="left" style="font-size: 18px;">Inserisci i minuti di attesa</p>
+        <input type="number" id="waitingTimeInput">
         <br><br>
         <p align="left" style="font-size: 18px;">Seleziona il punto di consegna</p>
         <div id="map" class="map"></div>
 
-        </br></br>
-        <button id="trovaRistoranteBtn" onclick="">Trova ristorante</button>
+        <br><br>
+        <button id="trovaRistoranteBtn" onclick="findRestaurant()">Trova ristorante</button>
 
 
-        </br></br>
-        <div id="map-container" class="map"></div>
+        <br><br>
+        <p id="restaurantName" style="font-size: 24px;" align="left"></p>
+        <p id="restaurantRating" style="font-size: 19px;" align="left"></p>
+        <p id="PreparationTime" style="font-size: 19px;" align="left"></p>
+        <p id="DeliveryTime" style="font-size: 19px;" align="left"></p>
+
+        <div id="pathMap" class="custom-height" style="width: 100%; margin-top: 20px; margin-bottom: 20px;"></div>
+
+    </div>
     </div>
 
     <script>
@@ -135,6 +152,7 @@
         var cuisineTypeSelect = document.getElementById("cuisineTypeSelect");
         var dishInputsContainer = document.getElementById("dishesInputs");
         var maxDishInputs = 10;  // Modifica questo valore se vuoi cambiare il numero massimo di menu a tendina
+        var start_coords;
 
         // Funzione che gestisce il cambio del tipo di cucina
         cuisineTypeSelect.addEventListener("change", function () {
@@ -174,17 +192,18 @@
 
         // Funzione per popolare un input delle pietanze con i nuovi piatti
         function populateDishInput(dishInput, dishes) {
-            for (var i = 0; i < dishes.length; i++) {
-                var option = document.createElement("option");
-                option.text = dishes[i];
-                dishInput.add(option);
+                for (var i = 0; i < dishes.length; i++) {
+                    var option = document.createElement("option");
+                    option.text = dishes[i];
+                    dishInput.add(option);
+                }
             }
-        }
 
         // Funzione che gestisce il clic sul pulsante "Aggiungi piatto"
         function handleAddDishClick() {
-            // Aggiungi un nuovo input delle pietanze
-            addDishInput();
+
+          // Aggiungi un nuovo input delle pietanze
+          addDishInput();
         }
 
 
@@ -194,65 +213,91 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var startMarker, endMarker;
+        var startMarker;
 
         map.on('click', function (e) {
-        if (!startMarker) {
-            startMarker = L.marker(e.latlng).addTo(map);
-            sendCoords('/select_start', { lat: e.latlng.lat, lon: e.latlng.lng });
-        } else {
-            // Rimuovi il marker esistente e aggiungi uno nuovo al nuovo punto cliccato
-            map.removeLayer(startMarker);
-            startMarker = L.marker(e.latlng).addTo(map);
-            sendCoords('/select_start', { lat: e.latlng.lat, lon: e.latlng.lng });
-        }
-    });
-
-
-        function calculatePath() {
-            if (startMarker && endMarker) {
-                sendRequest('/calculate_path', function (response) {
-                    var path = response.path;
-                    var streetNames = response.street_names;
-                    var totalDistance = response.total_distance;
-
-                    startMarker.bindPopup('Partenza').openPopup();
-                    endMarker.bindPopup('Arrivo').openPopup();
-
-                    // Aspetta che la mappa sia completamente pronta prima di aggiungere la polilinea
-                    map.on('load', function () {
-                        L.polyline(path, { color: 'blue' }).addTo(map);
-                    });
-
-                    console.log(response.map);
-                    document.getElementById("map-container").innerHTML = response.map;
-
-                });
+            if (!startMarker) {
+                startMarker = L.marker(e.latlng).addTo(map);
+                start_coords = { lat: e.latlng.lat, lon: e.latlng.lng };
             } else {
-                alert('Seleziona prima un punto di partenza e un punto di arrivo.');
+                // Rimuovi il marker esistente e aggiungi uno nuovo al nuovo punto cliccato
+                map.removeLayer(startMarker);
+                startMarker = L.marker(e.latlng).addTo(map);
+                start_coords = { lat: e.latlng.lat, lon: e.latlng.lng };
             }
+        });
+
+
+        function findRestaurant() {
+            var formData = {
+            cuisine_type: document.getElementById("cuisineTypeSelect").value,
+            dishes: Array.from(document.getElementsByClassName("dishSelect")).map(select => select.value),
+            waiting_time: document.getElementById("waitingTimeInput").value,
+            start_coords: start_coords  // Cambiato da user_coords a start_coords
+        };
+
+            // Invia i dati al server per trovare il ristorante
+            fetch('/find_restaurant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Estrai le coordinate del ristorante
+                var restaurantCoords = data.posizione_ristorante;
+
+                // Chiamare calculatePath() con le coordinate di partenza e di arrivo
+                calculatePath(restaurantCoords, start_coords);
+
+                // Aggiorna il nome del ristorante nell'HTML
+                document.getElementById("restaurantName").textContent   = "Ristorante:          " + data.nome_ristorante;
+                document.getElementById("restaurantRating").textContent = "Rating               : " + data.rating_ristorante;
+                document.getElementById("PreparationTime").textContent  = "Tempo di preparazione: " + data.tempo_preparazione;
+                document.getElementById("DeliveryTime").textContent     = "Tempo di consegna    : " + data.tempo_consegna;
+
+            })
+            .catch(error => {
+                console.error('Errore nella richiesta fetch:', error);
+            });
         }
 
+        function calculatePath(start_point, end_point) {
 
-        function sendCoords(url, coords) {
+            var formData = {
+                start_coords: start_point,
+                end_coords: end_point
+            };
+
+            sendRequest('/calculate_path', formData, function (response) {
+                var path = response.path;
+                var streetNames = response.street_names;
+                var totalDistance = response.total_distance;
+
+                // Aspetta che la mappa sia completamente pronta prima di aggiungere la polilinea
+                map.on('load', function () {
+                    L.polyline(path, { color: 'blue' }).addTo(map);
+                });
+
+                document.getElementById("pathMap").innerHTML = response.map;
+            });
+        }
+
+        function sendRequest(url, data, callback) {
             fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(coords)
-            });
-        }
-
-        function sendRequest(url, callback) {
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
-            .then(callback);
+            .then(callback)
+            .catch(error => {
+                console.error('Errore nella richiesta fetch:', error);
+            });
         }
     </script>
 </body>

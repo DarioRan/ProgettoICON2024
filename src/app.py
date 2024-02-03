@@ -8,7 +8,6 @@ app = Flask(__name__)
 # Carica il grafo all'avvio dell'applicazione
 G = nx.read_graphml('newyork.graphml')
 
-
 df = pd.read_csv('../dataset/food_order_final.csv')
 
 cuisine_types = df['cuisine_type'].unique()
@@ -26,9 +25,11 @@ for cuisine_type in cuisine_types:
 start_coords = None
 end_coords = None
 
+
 @app.route('/')
 def index():
     return render_template('index.html', cuisine_types=cuisine_types, cuisine_dishes_map=cuisine_dishes_map)
+
 
 @app.route('/select_start', methods=['POST'])
 def select_start():
@@ -36,15 +37,21 @@ def select_start():
     start_coords = request.get_json()
     return jsonify({'status': 'success'})
 
+
 @app.route('/select_end', methods=['POST'])
 def select_end():
     global end_coords
     end_coords = request.get_json()
     return jsonify({'status': 'success'})
 
+
 @app.route('/calculate_path', methods=['POST'])
 def calculate_path():
     global start_coords, end_coords
+
+    data = request.json
+    start_coords = data.get('start_coords')
+    end_coords = data.get('end_coords')
 
     if start_coords is None or end_coords is None:
         return jsonify({'error': 'Start and end coordinates must be selected'})
@@ -61,7 +68,32 @@ def calculate_path():
     # Genera la mappa del percorso
     map_html = generate_map(G, shortest_path, (lat_start, lon_start), (lat_end, lon_end))
 
-    return jsonify({'path': shortest_path, 'street_names': street_names, 'total_distance': total_distance, 'map': map_html})
+    return jsonify(
+        {'path': shortest_path, 'street_names': street_names, 'total_distance': total_distance, 'map': map_html})
+
+
+
+@app.route('/find_restaurant', methods=['POST'])
+def trova_ristorante():
+    data = request.get_json()
+    cuisine_type = data.get('cuisine_type')
+
+    ristorante = df[df['cuisine_type'] == cuisine_type].iloc[0]
+    if not ristorante.empty:
+        nome_ristorante = ristorante['restaurant_name']
+        lat_lon_string = ristorante['restaurant_location'].strip('()').split(', ')
+        lat, lon = map(float, lat_lon_string)
+        posizione_ristorante = {'lat': lat, 'lon': lon}
+        rating_ristorante = str(ristorante['rating'])
+        tempo_preparazione = str(ristorante['food_preparation_time'])
+        tempo_consegna = str(ristorante['delivery_time'])
+        return jsonify({'nome_ristorante': nome_ristorante,
+                        'posizione_ristorante': posizione_ristorante,
+                        'rating_ristorante': rating_ristorante,
+                        'tempo_preparazione': tempo_preparazione,
+                        'tempo_consegna': tempo_consegna})
+    else:
+        return jsonify({'nome_ristorante': None, 'posizione_ristorante': None})
 
 
 

@@ -17,6 +17,15 @@
             background-color: #FFD700; /* Colore arancio chiaro per lo sfondo del body */
         }
 
+        .header {
+            font-size: 40px;
+            background-color: #FFD700;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            padding: 20px; /* Aggiunto padding per aumentare l'altezza */
+            border-radius: 20px; /* Aggiunto bordo arrotondato */
+        }
+
         #form-container {
             width: 50%;
             display: flex;
@@ -58,11 +67,23 @@
             margin-bottom: 10px; /* Aggiunto spazio inferiore per separare gli elementi */
         }
 
+        #trovaRistoranteBtn {
+            border-radius: 10px;
+            background-color: #FFD700;
+            color: white;
+            padding: 10px 16px;
+            font-size: 20px;
+            border: none;
+            margin: 0 auto; /* Centro il pulsante orizzontalmente */
+        }
+
+
     </style>
 </head>
 <body>
 
     <div id="form-container">
+        <p class="header" align="left"> Food Delivery </p>
         <p align="left" style="font-size: 18px;">Seleziona il tipo di cucina </p>
         <select id="cuisineTypeSelect" placeholder="Tipo di cucina" style="width: 100%;">
             <option value="" disabled selected>Tipo di cucina</option>
@@ -96,13 +117,16 @@
         <div id="map" class="map"></div>
 
         </br></br>
-        <button onclick="handleAddDishClick()" style="border-radius: 10px; background-color: #FFD700; color:
-            white; padding: 10px 16px; font-size: 20px; border: none;">Trova ristorante</button>
+        <button id="trovaRistoranteBtn" onclick="handleAddDishClick()">Trova ristorante</button>
+
+
         </br></br>
         <div id="map-container" class="map"></div>
     </div>
 
     <script>
+
+        document.getElementById("trovaRistoranteBtn").style.width = "200px";
         // Popola il secondo menu a tendina con i dati già caricati dal server
         var cuisineDishesMap = {{ cuisine_dishes_map|tojson|safe }};
         var cuisineTypeSelect = document.getElementById("cuisineTypeSelect");

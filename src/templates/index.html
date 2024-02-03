@@ -14,12 +14,16 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            background-color: #FFD700; /* Colore arancio chiaro per lo sfondo del body */
+            background-image: url("{{ url_for('static', filename='background.jpg') }}");
+            background-size: cover;
         }
+
+
+
 
         .header {
             font-size: 40px;
-            background-color: #FFD700;
+            background-color: #0F52BA;
             font-family: 'Montserrat', sans-serif;
             color: white;
             padding: 20px; /* Aggiunto padding per aumentare l'altezza */
@@ -69,7 +73,7 @@
 
         #trovaRistoranteBtn {
             border-radius: 10px;
-            background-color: #FFD700;
+            background-color: #0F52BA;
             color: white;
             padding: 10px 16px;
             font-size: 20px;
@@ -115,7 +119,7 @@
                 <br>
             </div>
             <!-- Aggiungi questo pulsante per aggiungere nuovi input delle pietanze -->
-            <button onclick="handleAddDishClick()" style="border-radius: 50%; background-color: #FFD700; color:
+            <button onclick="handleAddDishClick()" style="border-radius: 50%; background-color: #0F52BA	; color:
             white; padding: 10px 16px; font-size: 20px; border: none;">+</button>
 
         </div>

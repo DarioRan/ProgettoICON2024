@@ -84,6 +84,8 @@
 
     <div id="form-container">
         <p class="header" align="left"> Food Delivery </p>
+
+
         <p align="left" style="font-size: 18px;">Seleziona il tipo di cucina </p>
         <select id="cuisineTypeSelect" placeholder="Tipo di cucina" style="width: 100%;">
             <option value="" disabled selected>Tipo di cucina</option>
@@ -117,7 +119,7 @@
         <div id="map" class="map"></div>
 
         </br></br>
-        <button id="trovaRistoranteBtn" onclick="handleAddDishClick()">Trova ristorante</button>
+        <button id="trovaRistoranteBtn" onclick="">Trova ristorante</button>
 
 
         </br></br>
@@ -127,6 +129,7 @@
     <script>
 
         document.getElementById("trovaRistoranteBtn").style.width = "200px";
+
         // Popola il secondo menu a tendina con i dati già caricati dal server
         var cuisineDishesMap = {{ cuisine_dishes_map|tojson|safe }};
         var cuisineTypeSelect = document.getElementById("cuisineTypeSelect");
@@ -143,9 +146,6 @@
 
             // Aggiungi il primo input delle pietanze
             addDishInput();
-
-            // Popola il primo input delle pietanze con i nuovi piatti
-            populateDishInput(dishInputsContainer.firstElementChild, dishes);
         });
 
         // Funzione per aggiungere un nuovo input delle pietanze
@@ -161,9 +161,14 @@
                 option.selected = true;
                 option.text = "Pietanza";
                 dishSelect.add(option);
+
+                // Popola il nuovo input delle pietanze solo se non è già stato popolato
+                if (!dishSelect.dataset.populated) {
+                    populateDishInput(dishSelect, cuisineDishesMap[cuisineTypeSelect.value]);
+                    dishSelect.dataset.populated = true;  // Imposta l'attributo per indicare che è stato popolato
+                }
+
                 dishInputsContainer.appendChild(dishSelect);
-                // Popola il nuovo input delle pietanze con i piatti corrispondenti al tipo di cucina selezionato
-                populateDishInput(dishSelect, cuisineDishesMap[cuisineTypeSelect.value]);
             }
         }
 
@@ -181,11 +186,8 @@
             // Aggiungi un nuovo input delle pietanze
             addDishInput();
         }
-    </script>
 
 
-
-    <script>
         var map = L.map('map').setView([40.7, -73.9], 10);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

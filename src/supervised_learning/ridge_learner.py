@@ -13,6 +13,7 @@ class RidgeRegressor:
         self.k = k
         self.model = None
         self.categorical_features = ['restaurant_name', 'day_of_the_week', 'dish_name']
+        self.initialize()
 
     def load_data(self):
         self.dishes_df = get_dataframe()

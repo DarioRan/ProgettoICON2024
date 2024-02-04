@@ -5,13 +5,10 @@ from src.supervised_learning.linear_lerner import LinearRegressor
 from src.supervised_learning.lasso_learner import LassoRegressor
 
 linear_regressor = LinearRegressor()
-linear_regressor.initialize()
 
 ridge_regressor = RidgeRegressor(alpha=0.2, k=5)
-ridge_regressor.initialize()
 
 lasso_regressor = LassoRegressor(alpha=0.2, k=5)
-lasso_regressor.initialize()
 
 new_data = pd.DataFrame([
     ['Pylos', 'Weekday', 'Armenian Losh Kebab'],

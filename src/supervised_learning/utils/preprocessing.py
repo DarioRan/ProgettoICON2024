@@ -1,18 +1,7 @@
 import ast
 import pandas as pd
 
-
-def get_dataframe():
-
-    dishes_df = retrieve_dataframe()
-
-
-    return dishes_df
-
-
-def retrieve_dataframe():
-
-    df = pd.read_csv(',,/../../../dataset/food_order_final.csv')
+def retrieve_dataframe(df):
 
     dishes_expanded_list = []
     for index, row in df.iterrows():

@@ -4,19 +4,19 @@ from sklearn.linear_model import Lasso
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
-from src.supervised_learning.utils.preprocessing import get_dataframe
+from src.supervised_learning.utils.preprocessing import retrieve_dataframe
 
 
 class LassoRegressor:
-    def __init__(self, alpha=0.2, k=5):
+    def __init__(self, df, alpha=0.2, k=5):
         self.alpha = alpha
         self.k = k
         self.model = None
         self.categorical_features = ['restaurant_name', 'day_of_the_week', 'dish_name']
-        self.initialize()
+        self.initialize(df)
 
-    def load_data(self):
-        self.dishes_df = get_dataframe()
+    def load_data(self, df):
+        self.dishes_df = retrieve_dataframe(df)
         self.X = self.dishes_df[['restaurant_name', 'day_of_the_week', 'dish_name']]
         self.y = self.dishes_df['preparation_time']
 
@@ -40,8 +40,8 @@ class LassoRegressor:
         self.lasso_rmse_scores = np.sqrt(-lasso_scores)
         print(f'Lasso RMSE: {self.lasso_rmse_scores.mean()} (± {self.lasso_rmse_scores.std()})')
 
-    def initialize(self):
-        self.load_data()
+    def initialize(self, df):
+        self.load_data(df)
         self.preprocess()
         self.train_test_split()
         self.initialize_model()

@@ -4,11 +4,13 @@ from src.supervised_learning.ridge_learner import RidgeRegressor
 from src.supervised_learning.linear_lerner import LinearRegressor
 from src.supervised_learning.lasso_learner import LassoRegressor
 
-linear_regressor = LinearRegressor()
+df = pd.read_csv('../../dataset/food_order_final.csv')
 
-ridge_regressor = RidgeRegressor(alpha=0.2, k=5)
+linear_regressor = LinearRegressor(df)
 
-lasso_regressor = LassoRegressor(alpha=0.2, k=5)
+ridge_regressor = RidgeRegressor(df, alpha=0.2, k=5)
+
+lasso_regressor = LassoRegressor(df, alpha=0.2, k=5)
 
 new_data = pd.DataFrame([
     ['Pylos', 'Weekday', 'Armenian Losh Kebab'],

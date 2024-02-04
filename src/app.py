@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
-from find_path import calculate_distance, find_shortest_path, generate_map
 import pandas as pd
+from find_path import calculate_distance, find_shortest_path, generate_map
+from supervised_learning.linear_lerner import LinearRegressor
 
 app = Flask(__name__)
 
@@ -77,16 +78,41 @@ def calculate_path():
 def trova_ristorante():
     data = request.get_json()
     cuisine_type = data.get('cuisine_type')
+    restourant_list = df[df['cuisine_type'] == cuisine_type]['restaurant_name']
+    linear_regressor = LinearRegressor(df)
 
-    ristorante = df[df['cuisine_type'] == cuisine_type].iloc[0]
-    if not ristorante.empty:
-        nome_ristorante = ristorante['restaurant_name']
-        lat_lon_string = ristorante['restaurant_location'].strip('()').split(', ')
+   #lista temporanea, verrà sostituita da csp
+    temp_list = []
+    for restaurant in restourant_list:
+        dishes = data.get('dishes')
+        new_data = pd.DataFrame([(restaurant, 'Weekday', dish) for dish in dishes],
+                                columns=['restaurant_name', 'day_of_the_week', 'dish_name'])
+        expected_preparation_time_list = linear_regressor.predict(new_data)
+        total_expected_time = expected_preparation_time_list.sum()
+        temp_list.append((restaurant, total_expected_time))
+
+    #ordiniamo per tempo di preparazione e ci prendiamo il primo ristorante, sempre temporanea come cosa
+    temp_list.sort(key=lambda x: x[1])
+
+    restaurant_name = temp_list[0][0]
+    preparation_time = temp_list[0][1]
+
+    restaurant = df[df['restaurant_name'] == restaurant_name].iloc[0]
+
+    #csp su ristoranti e visualizzare
+
+    return jsonify_restaurant(restaurant, preparation_time)
+
+
+def jsonify_restaurant(restaurant, preparation_time):
+    if not restaurant.empty:
+        nome_ristorante = restaurant['restaurant_name']
+        lat_lon_string = restaurant['restaurant_location'].strip('()').split(', ')
         lat, lon = map(float, lat_lon_string)
         posizione_ristorante = {'lat': lat, 'lon': lon}
-        rating_ristorante = str(ristorante['rating'])
-        tempo_preparazione = str(ristorante['food_preparation_time'])
-        tempo_consegna = str(ristorante['delivery_time'])
+        rating_ristorante = str(restaurant['rating'])
+        tempo_preparazione = str(preparation_time)
+        tempo_consegna = str(restaurant['delivery_time'])
         return jsonify({'nome_ristorante': nome_ristorante,
                         'posizione_ristorante': posizione_ristorante,
                         'rating_ristorante': rating_ristorante,
@@ -94,7 +120,6 @@ def trova_ristorante():
                         'tempo_consegna': tempo_consegna})
     else:
         return jsonify({'nome_ristorante': None, 'posizione_ristorante': None})
-
 
 
 if __name__ == '__main__':

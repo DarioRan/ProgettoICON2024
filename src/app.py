@@ -85,6 +85,7 @@ def trova_ristorante():
     temp_list = []
     for restaurant in restourant_list:
         dishes = data.get('dishes')
+        #inserire box per weekday o retrive da solo
         new_data = pd.DataFrame([(restaurant, 'Weekday', dish) for dish in dishes],
                                 columns=['restaurant_name', 'day_of_the_week', 'dish_name'])
         expected_preparation_time_list = linear_regressor.predict(new_data)

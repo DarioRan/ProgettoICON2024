@@ -8,14 +8,14 @@ df = pd.read_csv('../../dataset/food_order_final.csv')
 
 linear_regressor = LinearRegressor(df)
 
-ridge_regressor = RidgeRegressor(df, alpha=0.2, k=5)
+ridge_regressor = RidgeRegressor(df, alpha=0.1, k=5)
 
-lasso_regressor = LassoRegressor(df, alpha=0.2, k=5)
+lasso_regressor = LassoRegressor(df, alpha=5, k=5)
 
 new_data = pd.DataFrame([
-    ['Pylos', 'Weekday', 'Armenian Losh Kebab'],
-    ['Pylos', 'Weekday', 'Greek Salad']
-], columns=['restaurant_name', 'day_of_the_week', 'dish_name'])
+    ['Pylos', 'Weekday', 'Armenian Losh Kebab', '40.7261637', '-73.9840813'],
+    ['Pylos', 'Weekday', 'Greek Salad', '40.7261637', '-73.9840813']
+], columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
 predictions = linear_regressor.predict(new_data)
 
 print(predictions)

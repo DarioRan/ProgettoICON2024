@@ -1,4 +1,7 @@
+import ast
+
 import numpy as np
+import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -13,11 +16,15 @@ class RidgeRegressor:
         self.k = k
         self.model = None
         self.categorical_features = ['restaurant_name', 'day_of_the_week', 'dish_name']
+        self.numerical_features = ['latitude', 'longitude']
         self.initialize(df)
 
     def load_data(self, df):
         self.dishes_df = retrieve_dataframe(df)
-        self.X = self.dishes_df[['restaurant_name', 'day_of_the_week', 'dish_name']]
+        self.dishes_df[['latitude', 'longitude']] = self.dishes_df['restaurant_location'].apply(
+            lambda loc: pd.Series(ast.literal_eval(loc))
+        )
+        self.X = self.dishes_df[['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude']]
         self.y = self.dishes_df['preparation_time']
 
     def preprocess(self):

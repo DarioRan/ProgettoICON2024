@@ -85,9 +85,11 @@ def trova_ristorante():
     temp_list = []
     for restaurant in restourant_list:
         dishes = data.get('dishes')
+        lat = data.get('start_coords')['lat']
+        lon = data.get('start_coords')['lon']
         #inserire box per weekday o retrive da solo
-        new_data = pd.DataFrame([(restaurant, 'Weekday', dish) for dish in dishes],
-                                columns=['restaurant_name', 'day_of_the_week', 'dish_name'])
+        new_data = pd.DataFrame([(restaurant, 'Weekday', dish, lat, lon) for dish in dishes],
+                                columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
         expected_preparation_time_list = linear_regressor.predict(new_data)
         total_expected_time = expected_preparation_time_list.sum()
         temp_list.append((restaurant, total_expected_time))

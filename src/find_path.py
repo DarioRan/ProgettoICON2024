@@ -3,7 +3,7 @@ import numpy as np
 import geopy.distance
 import folium
 from astar import astar_path
-
+import requests
 
 def find_closest_node(graph, lat, lon):
     """Trova il nodo più vicino alle coordinate date nel grafo.
@@ -140,6 +140,29 @@ def calculate_distance(graph, path):
             total_distance += edge_data[0]['length']
     return total_distance
 
+def calculate_time(G, shortest_path) :
+
+    total_time = 0
+    for i in range(len(shortest_path) - 1):
+        edge_data = G.get_edge_data(shortest_path[i], shortest_path[i + 1])
+        if edge_data and 'length' in edge_data[0]:
+            coord1 = {'lat': float(G.nodes[shortest_path[i]]['y']), 'lon': float(G.nodes[shortest_path[i]]['x'])}
+        coord2 = {'lat': float(G.nodes[shortest_path[i + 1]]['y']),
+                  'lon': float(G.nodes[shortest_path[i + 1]]['x'])}
+        lat_medio = (coord1['lat'] + coord2['lat']) / 2
+        lon_medio = (coord1['lon'] + coord2['lon']) / 2
+        url = f'https://api.tomtom.com/traffic/services/4/flowSegmentData/relative0/10/json?point={lat_medio}%2C{lon_medio}&unit=KMPH&openLr=false&key=HAH1hpg16dxOAbFE1ktAWIWD2Adj5PKs'
+        response = requests.get(url)
+        data = response.json()
+        current_speed = data['flowSegmentData']['currentSpeed'] * (1000 / 3600)
+        total_time += edge_data[0]['length'] / current_speed
+
+    total_time = round((total_time / 60), 2 )
+
+    return total_time
+
+
+
 def generate_map(graph, shortest_path, start_coords=None, end_coords=None):
     """Genera una mappa con il percorso evidenziato.
 
@@ -178,8 +201,6 @@ def generate_map(graph, shortest_path, start_coords=None, end_coords=None):
     return mymap._repr_html_()
 
 
-
-
 if __name__ == "__main__":
     # Leggi il file GraphML
     G = nx.read_graphml('newyork.graphml')
@@ -193,10 +214,9 @@ if __name__ == "__main__":
 
     # Calcola la distanza percorsa
     total_distance = calculate_distance(G, shortest_path)
+    total_time = calculate_time(G, shortest_path)
 
     # Stampa i nomi delle strade e la distanza
     print('Le strade da percorrere sono:', street_names)
     print(f'La lunghezza totale del percorso è: {total_distance / 1000:.2f} km')
-
-    # Genera la mappa del percorso
-    generate_map(G, shortest_path)
+    print(f'Il tempo totale del percorso è: {total_time} minuti' )

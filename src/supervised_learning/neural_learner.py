@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 
 
 class PyTorchRegressor(nn.Module):
@@ -94,6 +94,21 @@ class NeuralRegressor:
                 optimizer.step()  # Update the weights
             print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss.item()}')
 
+    def tune_hyperparameters(self, param_grid):
+        X_train_tensor = torch.tensor(self.X_train.todense().astype(np.float32))
+        y_train_tensor = torch.tensor(self.y_train.astype(np.float32))
+
+        model = PyTorchRegressor(input_shape=self.X_train.shape[1])
+
+        grid_search = GridSearchCV(model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+
+        grid_search.fit(X_train_tensor, y_train_tensor)
+
+        best_params = grid_search.best_params_
+        print(f'Migliori parametri: {best_params}')
+
+        self.model = grid_search.best_estimator_
+
     def evaluate_model(self):
         # Convert the test data to PyTorch tensors
         X_test_tensor = torch.tensor(self.X_test.todense().astype(np.float32))
@@ -124,6 +139,10 @@ class NeuralRegressor:
         self.load_data()
         self.preprocess()
         self.train_test_split()
+
         self.initialize_model()
         self.train_model()
+        #questi 2 o questo sotto
+
+        #self.tune_hyperparameters()
         self.evaluate_model()

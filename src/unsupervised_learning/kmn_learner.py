@@ -8,7 +8,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 
-class KNNClusterer:
+class KMNClusterer:
     def __init__(self, df, n_clusters=5, random_state=42):
         self.dishes_df = df
         self.n_clusters = n_clusters

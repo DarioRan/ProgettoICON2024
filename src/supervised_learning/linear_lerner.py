@@ -28,7 +28,7 @@ class LinearRegressor:
         self.dishes_df[['latitude', 'longitude']] = self.dishes_df['restaurant_location'].apply(
             lambda loc: pd.Series(ast.literal_eval(loc))
         )
-        self.X = self.dishes_df[['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude']]
+        self.X = self.dishes_df[self.categorical_features + self.numerical_features]
         self.y = self.dishes_df['preparation_time']
 
     def preprocess(self):

@@ -1,5 +1,6 @@
 import pandas as pd
 
+from src.supervised_learning.neural_learner import NeuralRegressor
 from src.supervised_learning.ridge_learner import RidgeRegressor
 from src.supervised_learning.linear_lerner import LinearRegressor
 from src.supervised_learning.lasso_learner import LassoRegressor
@@ -9,6 +10,8 @@ df = pd.read_csv('../../dataset/dishes_df.csv')
 
 knn_clusterer = KMNClusterer(df, n_clusters=10, random_state=42)
 df_with_clusters = knn_clusterer.clusterize()
+
+neural_regressor = NeuralRegressor(df)
 
 linear_regressor = LinearRegressor(df)
 
@@ -22,6 +25,7 @@ new_data = pd.DataFrame([
 ], columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
 
 pred1 = linear_regressor.predict(new_data)
+pred2 = neural_regressor.predict(new_data)
 
 print(pred1)
-
+print(pred2)

@@ -79,7 +79,8 @@ def trova_ristorante():
     data = request.get_json()
     cuisine_type = data.get('cuisine_type')
     restourant_list = df[df['cuisine_type'] == cuisine_type]['restaurant_name']
-    linear_regressor = LinearRegressor(df)
+    dishes_df = pd.read_csv('../dataset/dishes_df.csv')
+    linear_regressor = LinearRegressor(dishes_df)
 
    #lista temporanea, verrà sostituita da csp
     temp_list = []

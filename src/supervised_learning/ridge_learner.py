@@ -7,20 +7,19 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
-from src.supervised_learning.utils.preprocessing import retrieve_dataframe
 
 
 class RidgeRegressor:
     def __init__(self, df, alpha=0.2, k=5):
+        self.dishes_df = df
         self.alpha = alpha
         self.k = k
         self.model = None
         self.categorical_features = ['restaurant_name', 'day_of_the_week', 'dish_name']
         self.numerical_features = ['latitude', 'longitude']
-        self.initialize(df)
+        self.initialize()
 
-    def load_data(self, df):
-        self.dishes_df = retrieve_dataframe(df)
+    def load_data(self):
         self.dishes_df[['latitude', 'longitude']] = self.dishes_df['restaurant_location'].apply(
             lambda loc: pd.Series(ast.literal_eval(loc))
         )
@@ -48,8 +47,8 @@ class RidgeRegressor:
         self.ridge_rmse_scores = np.sqrt(-ridge_scores)
         print(f'Ridge RMSE: {self.ridge_rmse_scores.mean()} (± {self.ridge_rmse_scores.std()})')
 
-    def initialize(self, df):
-        self.load_data(df)
+    def initialize(self):
+        self.load_data()
         self.preprocess()
         self.train_test_split()
         self.initialize_model()

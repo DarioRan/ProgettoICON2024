@@ -9,20 +9,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from src.supervised_learning.utils.preprocessing import retrieve_dataframe
-
 
 class LinearRegressor:
-    def __init__(self, df, random_state=42, test_size=0.2):
+    def __init__(self, df, random_state=42, test_size=0.2, categorical_features=None, numerical_features=None):
+        self.dishes_df = df
+        if numerical_features is None:
+            numerical_features = ['latitude', 'longitude']
+        if categorical_features is None:
+            categorical_features = ['restaurant_name', 'day_of_the_week', 'dish_name']
         self.random_state = random_state
         self.test_size = test_size
         self.model = None
-        self.categorical_features = ['restaurant_name', 'day_of_the_week', 'dish_name']
-        self.numerical_features = ['latitude', 'longitude']
-        self.initialize(df)
+        self.categorical_features = categorical_features
+        self.numerical_features = numerical_features
+        self.initialize()
 
-    def load_data(self, df):
-        self.dishes_df = retrieve_dataframe(df)
+    def load_data(self):
         self.dishes_df[['latitude', 'longitude']] = self.dishes_df['restaurant_location'].apply(
             lambda loc: pd.Series(ast.literal_eval(loc))
         )
@@ -53,8 +55,8 @@ class LinearRegressor:
         rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
         print(f'Basic RMSE: {rmse}')
 
-    def initialize(self, df):
-        self.load_data(df)
+    def initialize(self):
+        self.load_data()
         self.preprocess()
         self.train_test_split()
         self.initialize_model()

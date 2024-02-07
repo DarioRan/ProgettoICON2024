@@ -1,0 +1,14 @@
+Distanza: 50 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Robert F. Kennedy Bridge', "[u'Grand Central Parkway', u'Brooklyn Queens Expressway']", 'Grand Central Parkway', 'Astoria Boulevard South', 'Astoria Boulevard', '114th Street', 'Northern Boulevard', 'Cross Island Parkway', 'Douglaston Parkway', '61st Avenue', 'Marathon Parkway', '63rd Avenue', '252nd Street', 'Cullman Avenue', '254th Street', 'Little Neck Parkway', '260th Street', '73rd Avenue', '263rd Street', 'Union Turnpike']
+La lunghezza totale del percorso è: 26.44 km
+Il tempo totale del percorso è: 36 minuti e 11 secondi
+Tempo di esecuzione: 4.20623 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Robert F. Kennedy Bridge', "[u'Grand Central Parkway', u'Brooklyn Queens Expressway']", 'Grand Central Parkway', 'Winchester Boulevard', 'Union Turnpike']
+La lunghezza totale del percorso è: 30.03 km
+Il tempo totale del percorso è: 27 minuti e 44 secondi
+Tempo di esecuzione: 4.92219 secondi
+

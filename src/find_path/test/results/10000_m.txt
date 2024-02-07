@@ -1,0 +1,14 @@
+Distanza: 10 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'Malcolm X Boulevard', 'West 128th Street', 'East 128th Street', 'Madison Avenue', "[u'East 138th Street', u'Madison Avenue', u'Madison Avenue Bridge']", 'East 138th Street', '3rd Avenue', 'Westchester Avenue', 'White Plains Road', 'Westchester Avenue', 'Hugh J. Grant Circle', 'Westchester Avenue', 'East Tremont Avenue', 'Waterbury Avenue']
+La lunghezza totale del percorso è: 11.80 km
+Il tempo totale del percorso è: 16 minuti e 5 secondi
+Tempo di esecuzione: 1.40079 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', "[u'Willis Avenue Bridge', u'1st Avenue']", 'Willis Avenue Bridge', 'Bruckner Boulevard', 'Bruckner Expressway', 'Bruckner Boulevard', 'East Tremont Avenue', 'Baisley Avenue', 'Bradford Avenue', 'Waterbury Avenue']
+La lunghezza totale del percorso è: 12.18 km
+Il tempo totale del percorso è: 12 minuti e 35 secondi
+Tempo di esecuzione: 1.53876 secondi
+

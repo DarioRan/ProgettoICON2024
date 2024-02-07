@@ -1,0 +1,20 @@
+Distanza: 0.5 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'Malcolm X Boulevard']
+La lunghezza totale del percorso è: 0.82 km
+Il tempo totale del percorso è: 1 minuti e 3 secondi
+Tempo di esecuzione: 0.20538 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'Malcolm X Boulevard']
+La lunghezza totale del percorso è: 0.82 km
+Il tempo totale del percorso è: 1 minuti e 3 secondi
+Tempo di esecuzione: 0.22604 secondi
+
+Dijkstra
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'Malcolm X Boulevard']
+La lunghezza totale del percorso è: 0.82 km
+Il tempo totale del percorso è: 1 minuti e 3 secondi
+Tempo di esecuzione: 0.20272 secondi
+

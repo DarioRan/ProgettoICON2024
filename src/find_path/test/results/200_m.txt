@@ -1,0 +1,20 @@
+Distanza: 0.2 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'Malcolm X Boulevard', 'West 128th Street', '5th Avenue']
+La lunghezza totale del percorso è: 0.81 km
+Il tempo totale del percorso è: 1 minuti e 25 secondi
+Tempo di esecuzione: 0.23775 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Madison Avenue', 'East 127th Street']
+La lunghezza totale del percorso è: 0.96 km
+Il tempo totale del percorso è: 1 minuti e 23 secondi
+Tempo di esecuzione: 0.24891 secondi
+
+Dijkstra
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Madison Avenue', 'East 127th Street']
+La lunghezza totale del percorso è: 0.96 km
+Il tempo totale del percorso è: 1 minuti e 23 secondi
+Tempo di esecuzione: 0.22633 secondi
+

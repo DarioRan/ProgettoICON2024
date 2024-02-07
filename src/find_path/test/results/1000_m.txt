@@ -1,0 +1,20 @@
+Distanza: 1 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', '5th Avenue', 'East 124th Street', 'Park Avenue', 'East 122nd Street', '3rd Avenue']
+La lunghezza totale del percorso è: 1.43 km
+Il tempo totale del percorso è: 2 minuti e 57 secondi
+Tempo di esecuzione: 0.22204 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Lexington Avenue', 'East 122nd Street', '3rd Avenue']
+La lunghezza totale del percorso è: 1.43 km
+Il tempo totale del percorso è: 1 minuti e 50 secondi
+Tempo di esecuzione: 0.26171 secondi
+
+Dijkstra
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Lexington Avenue', 'East 122nd Street', '3rd Avenue']
+La lunghezza totale del percorso è: 1.43 km
+Il tempo totale del percorso è: 1 minuti e 50 secondi
+Tempo di esecuzione: 0.20207 secondi
+

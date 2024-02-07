@@ -1,0 +1,14 @@
+Distanza: 5 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'Central Park North', 'Frawley Circle', '5th Avenue', 'East 108th Street', 'Park Avenue', 'East 106th Street', 'Lexington Avenue', 'East 104th Street', '2nd Avenue', 'East 96th Street', 'FDR Drive', 'York Avenue']
+La lunghezza totale del percorso è: 6.27 km
+Il tempo totale del percorso è: 8 minuti e 47 secondi
+Tempo di esecuzione: 0.56203 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', 'Harlem River Drive', 'FDR Drive', 'East 71st Street', 'York Avenue']
+La lunghezza totale del percorso è: 6.87 km
+Il tempo totale del percorso è: 4 minuti e 58 secondi
+Tempo di esecuzione: 0.42180 secondi
+

@@ -1,0 +1,14 @@
+Distanza: 20 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'Malcolm X Boulevard', "[u'East 149th Street', u'145th Street Bridge', u'West 145th Street']", 'East 149th Street', 'Park Avenue', 'Morris Avenue', 'Park Avenue', 'East 161st Street', 'Elton Avenue', 'East 163rd Street', '3rd Avenue', 'Boston Road', 'East Tremont Avenue', 'Morris Park Avenue', 'Eastchester Road', 'Stillwell Avenue', 'Bronx and Pelham Parkway', 'Hutchinson River Parkway']
+La lunghezza totale del percorso è: 16.66 km
+Il tempo totale del percorso è: 22 minuti e 34 secondi
+Tempo di esecuzione: 2.35587 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'West 125th Street', 'East 125th Street', "[u'Willis Avenue Bridge', u'1st Avenue']", 'Willis Avenue Bridge', 'Bruckner Boulevard', 'Bruckner Expressway', "[u'Bruckner Expressway', u'New England Thruway']", 'New England Thruway']
+La lunghezza totale del percorso è: 18.87 km
+Il tempo totale del percorso è: 16 minuti e 21 secondi
+Tempo di esecuzione: 2.02415 secondi
+

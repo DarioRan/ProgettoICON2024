@@ -1,0 +1,20 @@
+Distanza: 2 km
+
+A*
+Le strade da percorrere sono:['Malcolm X Boulevard', 'Central Park North', 'Frawley Circle', '5th Avenue']
+La lunghezza totale del percorso è: 2.41 km
+Il tempo totale del percorso è: 3 minuti e 2 secondi
+Tempo di esecuzione: 0.26045 secondi
+
+Branch and Bound
+Le strade da percorrere sono:['Malcolm X Boulevard', 'Central Park North', 'Frawley Circle', '5th Avenue']
+La lunghezza totale del percorso è: 2.41 km
+Il tempo totale del percorso è: 3 minuti e 2 secondi
+Tempo di esecuzione: 0.32015 secondi
+
+Dijkstra
+Le strade da percorrere sono:['Malcolm X Boulevard', 'Central Park North', 'Frawley Circle', '5th Avenue']
+La lunghezza totale del percorso è: 2.41 km
+Il tempo totale del percorso è: 3 minuti e 2 secondi
+Tempo di esecuzione: 0.21715 secondi
+

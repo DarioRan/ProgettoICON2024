@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
 import pandas as pd
-from find_path import calculate_distance, find_shortest_path, generate_map
+from src.find_path.utils import calculate_distance, find_path_BB, generate_map, calculate_delivery_time
 from supervised_learning.linear_lerner import LinearRegressor
 
 app = Flask(__name__)
 
 # Carica il grafo all'avvio dell'applicazione
-G = nx.read_graphml('newyork.graphml')
+G = nx.read_graphml('../dataset/newyork_final.graphml')
 
 df = pd.read_csv('../dataset/food_order_final.csv')
 
@@ -60,12 +60,12 @@ def calculate_path():
     lat_start, lon_start = start_coords['lat'], start_coords['lon']
     lat_end, lon_end = end_coords['lat'], end_coords['lon']
 
-    # Trova il percorso più breve usando l'algoritmo A*
-    shortest_path, street_names = find_shortest_path(G, lat_start, lon_start, lat_end, lon_end)
+    # Trova il percorso più breve usando l'algoritmo Branch and Bound
+    shortest_path, street_names = find_path_BB(G, lat_start, lon_start, lat_end, lon_end)
 
     # Calcola la distanza percorsa
     total_distance = calculate_distance(G, shortest_path)
-
+    delivery_time = calculate_delivery_time(G, shortest_path)
     # Genera la mappa del percorso
     map_html = generate_map(G, shortest_path, (lat_start, lon_start), (lat_end, lon_end))
 
@@ -73,29 +73,29 @@ def calculate_path():
         {'path': shortest_path, 'street_names': street_names, 'total_distance': total_distance, 'map': map_html})
 
 
-
 @app.route('/find_restaurant', methods=['POST'])
 def trova_ristorante():
     data = request.get_json()
+    print(data)
     cuisine_type = data.get('cuisine_type')
     restourant_list = df[df['cuisine_type'] == cuisine_type]['restaurant_name']
     dishes_df = pd.read_csv('../dataset/dishes_df.csv')
     linear_regressor = LinearRegressor(dishes_df)
 
-   #lista temporanea, verrà sostituita da csp
+    # lista temporanea, verrà sostituita da csp
     temp_list = []
     for restaurant in restourant_list:
         dishes = data.get('dishes')
         lat = data.get('start_coords')['lat']
         lon = data.get('start_coords')['lon']
-        #inserire box per weekday o retrive da solo
+        # inserire box per weekday o retrive da solo
         new_data = pd.DataFrame([(restaurant, 'Weekday', dish, lat, lon) for dish in dishes],
                                 columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
         expected_preparation_time_list = linear_regressor.predict(new_data)
         total_expected_time = expected_preparation_time_list.sum()
         temp_list.append((restaurant, total_expected_time))
 
-    #ordiniamo per tempo di preparazione e ci prendiamo il primo ristorante, sempre temporanea come cosa
+    # ordiniamo per tempo di preparazione e ci prendiamo il primo ristorante, sempre temporanea come cosa
     temp_list.sort(key=lambda x: x[1])
 
     restaurant_name = temp_list[0][0]
@@ -103,7 +103,7 @@ def trova_ristorante():
 
     restaurant = df[df['restaurant_name'] == restaurant_name].iloc[0]
 
-    #csp su ristoranti e visualizzare
+    # csp su ristoranti e visualizzare
 
     return jsonify_restaurant(restaurant, preparation_time)
 

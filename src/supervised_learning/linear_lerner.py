@@ -5,13 +5,13 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
 
 class LinearRegressor:
-    def __init__(self, df, random_state=42, test_size=0.2, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation = False, random_state=42, test_size=0.2, k=5, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         if numerical_features is None:
             numerical_features = ['latitude', 'longitude']
@@ -22,6 +22,8 @@ class LinearRegressor:
         self.model = None
         self.categorical_features = categorical_features
         self.numerical_features = numerical_features
+        self.k = k
+        self.cross_validation = cross_validation
         self.initialize()
 
     def load_data(self):
@@ -50,10 +52,32 @@ class LinearRegressor:
     def train_model(self):
         self.model.fit(self.X_train, self.y_train)
 
+    def calculate_bic(self, mse, num_params):
+        n = len(self.y_test)  # Number of data points
+        rss = mse * n  # Residual sum of squares
+        bic = n * np.log(rss / n) + num_params * np.log(n)
+        return bic
+
     def evaluate_model(self):
         y_pred = self.model.predict(self.X_test)
         rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        print(f'Basic RMSE: {rmse}')
+        k = len(self.model.named_steps['regressor'].coef_)
+        bic = self.calculate_bic(rmse, k)
+        self.bic = bic
+        self.rmse = rmse
+        print(f'Linear RMSE: {rmse}')
+        print(f'Linear BIC: {bic}')
+
+    def cross_validate(self, scoring='neg_mean_squared_error'):
+        scores = cross_val_score(self.model, self.X, self.y, cv=self.k, scoring=scoring)
+        rmse_scores = np.sqrt(-scores)
+        k = len(self.model.named_steps['regressor'].coef_)
+        bic = self.calculate_bic(rmse_scores, k)
+        self.bic = bic
+        self.rmse = rmse_scores.mean()
+        print(f'Linear BIC: {bic}')
+        print(f'Linear Cross-validation RMSE: {rmse_scores.mean()} (± {rmse_scores.std()})')
+        return rmse_scores
 
     def tune_hyperparameters(self, param_grid):
         grid_search = GridSearchCV(self.model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
@@ -77,8 +101,14 @@ class LinearRegressor:
         }
         #diventa più scarso
         #self.tune_hyperparameters(param_grid)
+
         self.train_model()
-        self.evaluate_model()
+
+        if self.cross_validation:
+            self.cross_validate()
+        else:
+            self.evaluate_model()
+
 
     def predict(self, new_data):
         return self.model.predict(new_data)

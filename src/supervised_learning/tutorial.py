@@ -1,4 +1,5 @@
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from src.supervised_learning.neural_learner import NeuralRegressor
 from src.supervised_learning.ridge_learner import RidgeRegressor
@@ -13,12 +14,35 @@ df_with_clusters = knn_clusterer.clusterize()
 
 neural_regressor = NeuralRegressor(df)
 
-linear_regressor = LinearRegressor(df)
+linear_regressor = LinearRegressor(df, False)
 
-ridge_regressor = RidgeRegressor(df, alpha=0.1, k=5)
+ridge_regressor = RidgeRegressor(df, False, alpha=0.1, k=5)
 
-lasso_regressor = LassoRegressor(df, alpha=5, k=5)
+lasso_regressor = LassoRegressor(df, False, alpha=5, k=5)
 
+linear_regressor_bic = linear_regressor.bic
+ridge_regressor_bic = ridge_regressor.bic
+lasso_regressor_bic = lasso_regressor.bic
+neural_regressor_bic = neural_regressor.bic
+
+plt.figure(figsize=(8, 5))
+model_names = ['Linear Regressor', 'Neural Regressor', 'Ridge Regressor', 'Lasso Regressor']
+bic_values = [linear_regressor_bic, neural_regressor_bic, ridge_regressor_bic, lasso_regressor_bic]
+plt.bar(model_names, bic_values, color=['blue', 'orange'])
+plt.ylabel('BIC')
+plt.title('BIC of Different Regressors')
+plt.savefig('bic_comparison.png')
+
+
+plt.figure(figsize=(8, 5))
+model_names = ['Linear Regressor', 'Ridge Regressor', 'Lasso Regressor', 'Neural Regressor']
+rmse_values = [linear_regressor.rmse, ridge_regressor.rmse, lasso_regressor.rmse, neural_regressor.rmse]
+plt.bar(model_names, rmse_values, color=['blue', 'orange'])
+plt.ylabel('RMSE')
+plt.title('RMSE of Different Regressors')
+plt.savefig('rmse_comparison.png')
+
+"""
 new_data = pd.DataFrame([
     ['Pylos', 'Weekday', 'Armenian Losh Kebab', '40.7261637', '-73.9840813'],
     ['Pylos', 'Weekday', 'Greek Salad', '40.7261637', '-73.9840813']
@@ -26,6 +50,11 @@ new_data = pd.DataFrame([
 
 pred1 = linear_regressor.predict(new_data)
 pred2 = neural_regressor.predict(new_data)
+pred3 = ridge_regressor.predict(new_data)
+pred4 = lasso_regressor.predict(new_data)
 
 print(pred1)
 print(pred2)
+print(pred3)
+print(pred4)"""
+

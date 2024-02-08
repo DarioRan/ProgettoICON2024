@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 
 
 class PyTorchRegressor(nn.Module):
@@ -31,7 +31,7 @@ class PyTorchRegressor(nn.Module):
 
 
 class NeuralRegressor:
-    def __init__(self, df, random_state=42, test_size=0.2, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation = False, random_state=42, test_size=0.2,  k=5, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         self.random_state = random_state
         self.test_size = test_size
@@ -42,6 +42,7 @@ class NeuralRegressor:
         self.categorical_features = categorical_features
         self.numerical_features = numerical_features
         self.model = None
+        self.cross_validation = cross_validation
         self.initialize()
 
     def load_data(self):
@@ -162,6 +163,24 @@ class NeuralRegressor:
         self.best_params = best_params
         print(f'Overall best params: {best_params}, Best loss: {best_loss}')
 
+    def calculate_num_params(self):
+        model_parameters = filter(lambda p: p.requires_grad, self.model.parameters())
+        params_count = sum([np.prod(p.size()) for p in model_parameters])
+        return params_count
+
+    def calculate_bic(self, mse, num_params):
+        n = len(self.y_test)  # Number of data points
+        rss = mse * n  # Residual sum of squares
+        bic = n * np.log(rss / n) + num_params * np.log(n)
+        return bic
+
+    def cross_validate(self, cv=5, scoring='neg_mean_squared_error'):
+        scores = cross_val_score(self.model, self.X, self.y, cv=cv, scoring=scoring)
+        rmse_scores = np.sqrt(-scores)
+        print(f'Neural NetCross-validation RMSE: {rmse_scores.mean()} (± {rmse_scores.std()})')
+        self.rmse = rmse_scores.mean()
+        return rmse_scores
+
     def evaluate_model(self):
         # Convert the test data to PyTorch tensors
         X_test_tensor = torch.tensor(self.X_test.todense().astype(np.float32))
@@ -174,6 +193,11 @@ class NeuralRegressor:
             mse = torch.mean((predictions - y_test_tensor) ** 2)
             rmse = torch.sqrt(mse)
             print(f'Neural Net RMSE: {rmse.item()}')
+            self.rmse = rmse.item()
+        num_params = self.calculate_num_params()
+        bic = self.calculate_bic(mse.item(), num_params)
+        self.bic = bic
+        print(f'Neural Net BIC: {bic}')
 
     def predict(self, new_data):
         # Preprocess the new data
@@ -234,7 +258,9 @@ class NeuralRegressor:
                 loss = criterion(output, target)
                 loss.backward()
                 optimizer.step()
-            print(f'Epoca {epoch + 1}/{self.best_params["epochs"]}, Perdita: {loss.item()}')
+            print(f'Epoch {epoch + 1}/{self.best_params["epochs"]}, loss: {loss.item()}')
+
+
 
     def initialize(self):
         self.load_data()

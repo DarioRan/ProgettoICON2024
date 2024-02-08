@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
@@ -79,11 +79,26 @@ class LassoRegressor:
         print(f'Lasso Cross-validation RMSE: {lasso_rmse_scores.mean()} (± {lasso_rmse_scores.std()})')
         print(f'Lasso BIC: {bic}')
 
+    def tune_hyperparameters(self, param_grid):
+        grid_search = GridSearchCV(self.model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+        grid_search.fit(self.X_train, self.y_train)
+
+        best_params = grid_search.best_params_
+        print(best_params)
+        best_estimator = grid_search.best_estimator_
+        self.model = best_estimator
+        return best_params
+
     def initialize(self):
         self.load_data()
         self.preprocess()
         self.train_test_split()
         self.initialize_model()
+        param_grid = {
+            'regressor__alpha': [0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0,
+                                 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20, 50, 100, 500, 1000]
+        }
+        self.tune_hyperparameters(param_grid)
         self.train_model()
 
         if self.cross_validation:

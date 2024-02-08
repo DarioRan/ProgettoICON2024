@@ -13,12 +13,16 @@ knn_clusterer = KMNClusterer(df, n_clusters=10, random_state=42)
 df_with_clusters = knn_clusterer.clusterize()
 
 neural_regressor = NeuralRegressor(df)
+neural_regressor_with_cv = NeuralRegressor(df, True)
 
-linear_regressor = LinearRegressor(df, False)
+linear_regressor = LinearRegressor(df, )
+linear_regressor_with_cv = LinearRegressor(df, True)
 
-ridge_regressor = RidgeRegressor(df, False, alpha=0.1, k=5)
+ridge_regressor = RidgeRegressor(df, alpha=0.1)
+ridge_regressor_with_cv = RidgeRegressor(df, True, alpha=0.1)
 
-lasso_regressor = LassoRegressor(df, False, alpha=5, k=5)
+lasso_regressor = LassoRegressor(df,  alpha=0.1)
+lasso_regressor_with_cv = LassoRegressor(df, True, alpha=0.1)
 
 linear_regressor_bic = linear_regressor.bic
 ridge_regressor_bic = ridge_regressor.bic
@@ -26,8 +30,8 @@ lasso_regressor_bic = lasso_regressor.bic
 neural_regressor_bic = neural_regressor.bic
 
 plt.figure(figsize=(8, 5))
-model_names = ['Linear Regressor', 'Neural Regressor', 'Ridge Regressor', 'Lasso Regressor']
-bic_values = [linear_regressor_bic, neural_regressor_bic, ridge_regressor_bic, lasso_regressor_bic]
+model_names = ['Linear Regressor', 'Ridge Regressor', 'Lasso Regressor']
+bic_values = [linear_regressor_bic, ridge_regressor_bic, lasso_regressor_bic]
 plt.bar(model_names, bic_values, color=['blue', 'orange'])
 plt.ylabel('BIC')
 plt.title('BIC of Different Regressors')
@@ -35,8 +39,8 @@ plt.savefig('bic_comparison.png')
 
 
 plt.figure(figsize=(8, 5))
-model_names = ['Linear Regressor', 'Ridge Regressor', 'Lasso Regressor', 'Neural Regressor']
-rmse_values = [linear_regressor.rmse, ridge_regressor.rmse, lasso_regressor.rmse, neural_regressor.rmse]
+model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor', 'Neural Regressor with CV']
+rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse, neural_regressor_with_cv.rmse]
 plt.bar(model_names, rmse_values, color=['blue', 'orange'])
 plt.ylabel('RMSE')
 plt.title('RMSE of Different Regressors')

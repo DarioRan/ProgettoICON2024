@@ -31,7 +31,7 @@ class PyTorchRegressor(nn.Module):
 
 
 class NeuralRegressor:
-    def __init__(self, df, cross_validation=False, random_state=42, test_size=0.2,  k=5, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation=False, param_tuning=True, random_state=42, test_size=0.2, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         self.random_state = random_state
         self.test_size = test_size
@@ -43,6 +43,7 @@ class NeuralRegressor:
         self.numerical_features = numerical_features
         self.model = None
         self.cross_validation = cross_validation
+        self.param_tuning = param_tuning
         self.initialize()
 
     def load_data(self):
@@ -174,13 +175,6 @@ class NeuralRegressor:
         bic = n * np.log(rss / n) + num_params * np.log(n)
         return bic
 
-    def cross_validate(self, cv=5, scoring='neg_mean_squared_error'):
-        scores = cross_val_score(self.model, self.X, self.y, cv=cv, scoring=scoring)
-        rmse_scores = np.sqrt(-scores)
-        print(f'Neural NetCross-validation RMSE: {rmse_scores.mean()} (± {rmse_scores.std()})')
-        self.rmse = rmse_scores.mean()
-        return rmse_scores
-
     def evaluate_model(self):
         # Convert the test data to PyTorch tensors
         X_test_tensor = torch.tensor(self.X_test.todense().astype(np.float32))
@@ -259,38 +253,32 @@ class NeuralRegressor:
                 optimizer.step()
             print(f'Epoch {epoch + 1}/{self.best_params["epochs"]}, loss: {loss.item()}')
 
-    def tune_k_folds(self, k_values):
-        k_fold_scores = {}
-        for k in k_values:
-            scores = cross_val_score(self.model, self.X, self.y, cv=k, scoring='neg_mean_squared_error')
-            rmse_scores = np.sqrt(-scores)
-            mean_rmse = rmse_scores.mean()
-            k_fold_scores[k] = mean_rmse
-            print(f'Neural Net {k}-fold CV RMSE: {mean_rmse} (± {rmse_scores.std()})')
-
-        best_k = min(k_fold_scores, key=k_fold_scores.get)
-        print(f'Neural Net Best k by lowest RMSE: {best_k}')
-        self.k = best_k
-
-
     def initialize(self):
         self.load_data()
         self.preprocess()
         self.train_test_split()
+
         param_grid = {
             'lr': [1e-2, 1e-1],
             'batch_size': [8, 16],
             'epochs': [100, 150],
             'dropout': [0, 0.1]
         }
-        self.tune_hyperparameters(param_grid)
+
+        if self.param_tuning:
+            self.tune_hyperparameters(param_grid)
+        else:
+            self.best_params = {
+                'lr': 0.01,
+                'batch_size': 8,
+                'epochs': 150,
+                'dropout': 0.1
+            }
+
         self.train_model_with_best_params()
 
         if self.cross_validation:
             k_values = [3, 5, 10, 15, 20]
-            self.tune_k_folds(k_values)
-            #sbagliata di regola
-            self.cross_validate()
         else:
             self.evaluate_model()
 

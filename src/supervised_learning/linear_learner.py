@@ -53,17 +53,6 @@ class LinearRegressor:
     def train_model(self):
         self.model.fit(self.X_train, self.y_train)
 
-    def calculate_bic(self, mse, num_params):
-        n = len(self.y_test)  # Number of data points
-        rss = mse * n  # Residual sum of squares
-        bic = n * np.log(rss / n) + num_params * np.log(n)
-        return bic
-
-    def evaluate_model(self):
-        y_pred = self.model.predict(self.X_test)
-        self.rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        print(f'Linear RMSE: {self.rmse}')
-
     def cross_validate(self, scoring='neg_mean_squared_error'):
         scores = cross_val_score(self.model, self.X, self.y, cv=self.k, scoring=scoring)
         rmse_scores = np.sqrt(-scores)
@@ -104,7 +93,23 @@ class LinearRegressor:
         plt.title('Linear RMSE for Different k Values in Cross-validation')
         plt.xticks(list(k_fold_scores.keys()))
         plt.grid(True)
-        plt.savefig('linear_k_tuning.png')
+        plt.savefig('output/linear_k_tuning.png')
+
+    def calculate_bic(self, mse):
+        n = len(self.y_test)  # Numero di osservazioni nel test set
+        k = len(self.model.named_steps[
+                    'regressor'].coef_)
+        rss = mse * n  # Somma residua dei quadrati
+        bic = n * np.log(rss / n) + k * np.log(n)
+        return bic
+
+    def evaluate_model(self):
+        y_pred = self.model.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.rmse = np.sqrt(mse)
+        self.bic = self.calculate_bic(mse)
+        print(f'Linear RMSE: {self.rmse}')
+        print(f'Linear BIC: {self.bic}')
 
     def initialize(self):
         self.load_data()
@@ -127,10 +132,6 @@ class LinearRegressor:
             self.cross_validate()
         else:
             self.evaluate_model()
-
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(self.rmse, k)
-        self.bic = bic
 
 
     def predict(self, new_data):

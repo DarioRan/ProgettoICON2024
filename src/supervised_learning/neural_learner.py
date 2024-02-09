@@ -160,7 +160,7 @@ class NeuralRegressor:
                     loss_by_hyperparam[key][value] = []
                 loss_by_hyperparam[key][value].append(avg_epoch_loss)
 
-        self.plot_hyperparameter_tuning_results(param_grid, loss_by_hyperparam, loss_by_combination)
+        self.plot_hyperparameter_tuning_results(loss_by_hyperparam, loss_by_combination)
         self.best_params = best_params
         print(f'Overall best params: {best_params}, Best loss: {best_loss}')
 
@@ -169,29 +169,7 @@ class NeuralRegressor:
         params_count = sum([np.prod(p.size()) for p in model_parameters])
         return params_count
 
-    def calculate_bic(self, mse, num_params):
-        n = len(self.y_test)  # Number of data points
-        rss = mse * n  # Residual sum of squares
-        bic = n * np.log(rss / n) + num_params * np.log(n)
-        return bic
 
-    def evaluate_model(self):
-        # Convert the test data to PyTorch tensors
-        X_test_tensor = torch.tensor(self.X_test.todense().astype(np.float32))
-        y_test_tensor = torch.tensor(self.y_test.astype(np.float32))
-
-        # Evaluate the model
-        self.model.eval()  # Set the model to evaluation mode
-        with torch.no_grad():  # Disable gradient calculation
-            predictions = self.model(X_test_tensor)
-            mse = torch.mean((predictions - y_test_tensor) ** 2)
-            rmse = torch.sqrt(mse)
-            print(f'Neural Net RMSE: {rmse.item()}')
-            self.rmse = rmse.item()
-        num_params = self.calculate_num_params()
-        bic = self.calculate_bic(mse.item(), num_params)
-        self.bic = bic
-        print(f'Neural Net BIC: {bic}')
 
     def predict(self, new_data):
         # Preprocess the new data
@@ -206,7 +184,7 @@ class NeuralRegressor:
 
         return predictions
 
-    def plot_hyperparameter_tuning_results(self, param_grid, loss_by_hyperparam, loss_by_combination):
+    def plot_hyperparameter_tuning_results(self, loss_by_hyperparam, loss_by_combination):
         for param, value_losses in loss_by_hyperparam.items():
             plt.figure()
             unique_values = sorted(value_losses.keys())
@@ -216,7 +194,7 @@ class NeuralRegressor:
             plt.xlabel(param)
             plt.ylabel('Average loss')
             plt.grid(True)
-            plt.savefig(f'loss_by_{param}.png')
+            plt.savefig(f'output/loss_by_{param}.png')
 
         plt.figure(figsize=(10, 6))
         sorted_combinations = sorted(loss_by_combination.items(), key=lambda x: x[1])[:10]
@@ -229,7 +207,7 @@ class NeuralRegressor:
         plt.ylabel('Average Loss')
         plt.tight_layout()
         plt.grid(True)
-        plt.savefig('top_10_hyperparameter_combinations.png')
+        plt.savefig('output/top_10_hyperparameter_combinations.png')
 
     def train_model_with_best_params(self):
         X_train_tensor = torch.tensor(self.X_train.todense().astype(np.float32))
@@ -252,6 +230,30 @@ class NeuralRegressor:
                 loss.backward()
                 optimizer.step()
             print(f'Epoch {epoch + 1}/{self.best_params["epochs"]}, loss: {loss.item()}')
+
+    def calculate_bic(self, mse):
+        n = len(self.y_test)  # Numero di osservazioni nel test set
+        k = self.calculate_num_params()
+        rss = mse * n  # Somma residua dei quadrati
+        bic = n * np.log(rss / n) + k * np.log(n)
+        return bic
+
+    def evaluate_model(self):
+        # Convert the test data to PyTorch tensors
+        X_test_tensor = torch.tensor(self.X_test.todense().astype(np.float32))
+        y_test_tensor = torch.tensor(self.y_test.astype(np.float32))
+
+        # Evaluate the model
+        self.model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():  # Disable gradient calculation
+            predictions = self.model(X_test_tensor)
+            mse = torch.mean((predictions - y_test_tensor) ** 2)
+            rmse = torch.sqrt(mse)
+            print(f'Neural Net RMSE: {rmse.item()}')
+            self.rmse = rmse.item()
+        bic = self.calculate_bic(mse.item())
+        self.bic = bic
+        print(f'Neural Net BIC: {bic}')
 
     def initialize(self):
         self.load_data()

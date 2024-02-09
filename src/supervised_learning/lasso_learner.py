@@ -53,18 +53,6 @@ class LassoRegressor:
     def train_model(self):
         self.model.fit(self.X_train, self.y_train)
 
-    def calculate_bic(self, mse, num_params):
-        n = len(self.y_test)  # Number of data points
-        rss = mse * n  # Residual sum of squares
-        bic = n * np.log(rss / n) + num_params * np.log(n)
-        return bic
-
-    def evaluate_model(self):
-        y_pred = self.model.predict(self.X_test)
-        self.rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        print(f'Lasso RMSE: {self.rmse}')
-
-
     def cross_validate(self):
         lasso_scores = cross_val_score(self.model, self.X, self.y, cv=self.k, scoring='neg_mean_squared_error')
         lasso_rmse_scores = np.sqrt(-lasso_scores)
@@ -94,7 +82,7 @@ class LassoRegressor:
         plt.ylabel('Mean Squared Error')
         plt.title('Lasso MSE vs. Alpha')
         plt.grid(True)
-        plt.savefig('lasso_mse_vs_alpha.png')
+        plt.savefig('output/lasso_mse_vs_alpha.png')
 
     def tune_k_folds(self, k_values):
         k_fold_scores = {}
@@ -119,7 +107,24 @@ class LassoRegressor:
         plt.title('Lasso RMSE for Different k Values in Cross-validation')
         plt.xticks(list(k_fold_scores.keys()))
         plt.grid(True)
-        plt.savefig('lasso_k_tuning.png')
+        plt.savefig('output/lasso_k_tuning.png')
+
+    def calculate_bic(self, mse):
+        n = len(self.y_test)  # Numero di osservazioni nel test set
+        k = len(self.model.named_steps[
+                    'regressor'].coef_)
+        rss = mse * n  # Somma residua dei quadrati
+        bic = n * np.log(rss / n) + k * np.log(n)
+        return bic
+
+    def evaluate_model(self):
+        y_pred = self.model.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.rmse = np.sqrt(mse)
+        self.bic = self.calculate_bic(mse)
+        print(f'Lasso RMSE: {self.rmse}')
+        print(f'Lasso BIC: {self.bic}')
+
 
     def initialize(self):
         self.load_data()
@@ -141,9 +146,6 @@ class LassoRegressor:
         else:
             self.evaluate_model()
 
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(self.rmse, k)
-        self.bic = bic
 
     def predict(self, new_data):
         return self.model.predict(new_data)

@@ -70,8 +70,9 @@ class BoostedRegressor:
         cv_results = xgb.cv(dtrain=dtrain, params=params, nfold=self.k, num_boost_round=50, early_stopping_rounds=10,
                             metrics="rmse", as_pandas=True, seed=self.random_state)
         rmse = cv_results['test-rmse-mean'].tail(1).values[0]
-        return rmse
+        self.rmse = rmse
         print(f"Boosted CV RMSE with {self.k} folds: {cv_results['test-rmse-mean'].min()}")
+        return rmse
 
     def tune_k_folds(self, k_values):
         rmse_scores = {}
@@ -94,12 +95,24 @@ class BoostedRegressor:
         plt.title('Boosted learner RMSE for Different k Values in k-fold CV')
         plt.xticks(list(rmse_scores.keys()))
         plt.grid(True)
-        plt.savefig('boosted_k_tuning.png')
+        plt.savefig('output/boosted_k_tuning.png')
+
+    def calculate_bic(self, mse):
+        n = len(self.y_test)  # Numero di osservazioni nel test set
+        booster = self.model.get_booster()
+        num_params = sum(booster.get_fscore().values())  # Somma dei punteggi di importanza delle feature
+        rss = mse * n  # Somma residua dei quadrati
+        bic = n * np.log(rss / n) + num_params * np.log(n)
+        return bic
 
     def evaluate_model(self):
+        self.preprocessed_X_test = self.preprocessor.transform(self.X_test)
         y_pred = self.model.predict(self.preprocessed_X_test)
-        rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        print(f"Boosted RMSE: {rmse}")
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.rmse = np.sqrt(mse)
+        self.bic = self.calculate_bic(mse)
+        print(f"Boosted RMSE: {self.rmse}")
+        print(f"Boosted BIC: {self.bic}")
 
     def initialize(self):
         self.load_data()

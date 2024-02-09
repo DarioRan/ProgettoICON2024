@@ -38,9 +38,10 @@ plt.title('BIC of Different Regressors')
 plt.savefig('bic_comparison.png')
 
 
-plt.figure(figsize=(8, 5))
+plt.figure(figsize=(12, 8))
 model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor']
 rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse]
+rmse_values.sort()
 plt.bar(model_names, rmse_values, color=['blue', 'orange'])
 plt.ylabel('RMSE')
 plt.title('RMSE of Different Regressors')

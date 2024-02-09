@@ -80,6 +80,9 @@ def trova_ristorante():
     print(data)
     cuisine_type = data.get('cuisine_type')
     restourant_list = df[df['cuisine_type'] == cuisine_type]['restaurant_name']
+    #dataframe con nome ristorante e location
+    restaurant_locations = df[df['cuisine_type'] == cuisine_type][['restaurant_name', 'restaurant_location']]
+    print(restaurant_locations)
     dishes_df = pd.read_csv('../dataset/dishes_df.csv')
 
     regression_mode = data.get('selected_model')
@@ -139,11 +142,25 @@ def trova_ristorante():
     restaurant_name = temp_list[0][0]
     preparation_time = temp_list[0][1]
 
-    restaurant = df[df['restaurant_name'] == restaurant_name].iloc[0]
+    best_restaurant_prep_time = df[df['restaurant_name'] == restaurant_name].iloc[0]
 
     # csp su ristoranti e visualizzare
+    for restaurant in temp_list[:10]:
+        restaurant_lat_long=restaurant_locations[restaurant_locations['restaurant_name'] == restaurant[0]]['restaurant_location'].iloc[0].strip('()').split(', ')
+        restaurant_loc_json={'lat': float(restaurant_lat_long[0]), 'lon': float(restaurant_lat_long[1])}
+        req_body_json={'start_coords': data.get('start_coords'),'end_coords': restaurant_loc_json}
+        shortest_path, street_names = find_path_BB(G, data.get('start_coords')['lat'], data.get('start_coords')['lon'], restaurant_loc_json['lat'], restaurant_loc_json['lon'])
+        delivery_time = calculate_delivery_time(G, shortest_path)
+        tot_delivery_time = delivery_time[0] * 60 + delivery_time[1] + total_expected_prep_time
+        #lista ristornati ordinati in base al tot delivery time
+        temp_list2 = []
+        temp_list2.append((restaurant[0], tot_delivery_time))
 
-    return jsonify_restaurant(restaurant, preparation_time)
+    temp_list2.sort(key=lambda x: x[1])
+    best_restaurant_tot_time= df[df['restaurant_name'] == temp_list2[0][0]].iloc[0]
+
+
+    return jsonify_restaurant(best_restaurant_prep_time, preparation_time)
 
 
 def jsonify_restaurant(restaurant, preparation_time):

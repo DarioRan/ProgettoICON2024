@@ -53,17 +53,6 @@ class RidgeRegressor:
     def train_model(self):
         self.model.fit(self.X_train, self.y_train)
 
-    def calculate_bic(self, mse, num_params):
-        n = len(self.y_test)  # Number of data points
-        rss = mse * n  # Residual sum of squares
-        bic = n * np.log(rss / n) + num_params * np.log(n)
-        return bic
-
-    def evaluate_model(self):
-        y_pred = self.model.predict(self.X_test)
-        self.rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        print(f'Ridge RMSE: {self.rmse}')
-
     def cross_validate(self):
         ridge_scores = cross_val_score(self.model, self.X, self.y, cv=self.k, scoring='neg_mean_squared_error')
         ridge_rmse_scores = np.sqrt(-ridge_scores)
@@ -93,7 +82,7 @@ class RidgeRegressor:
         plt.ylabel('Mean Squared Error')
         plt.title('Ridge MSE vs. Alpha')
         plt.grid(True)
-        plt.savefig('ridge_mse_vs_alpha.png')
+        plt.savefig('output/ridge_mse_vs_alpha.png')
 
     def tune_k_folds(self, k_values):
         k_fold_scores = {}
@@ -109,6 +98,7 @@ class RidgeRegressor:
         self.k = best_k
         self.plot_cv_tuning(k_fold_scores)
 
+
     def plot_cv_tuning(self, k_fold_scores):
         # Plotting the RMSE for different k values
         plt.figure(figsize=(8, 6))
@@ -118,7 +108,23 @@ class RidgeRegressor:
         plt.title('Ridge RMSE for Different k Values in Cross-validation')
         plt.xticks(list(k_fold_scores.keys()))
         plt.grid(True)
-        plt.savefig('ridge_k_tuning.png')
+        plt.savefig('output/ridge_k_tuning.png')
+
+    def calculate_bic(self, mse):
+        n = len(self.y_test)  # Numero di osservazioni nel test set
+        k = len(self.model.named_steps[
+                    'regressor'].coef_)
+        rss = mse * n  # Somma residua dei quadrati
+        bic = n * np.log(rss / n) + k * np.log(n)
+        return bic
+
+    def evaluate_model(self):
+        y_pred = self.model.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.rmse = np.sqrt(mse)
+        self.bic = self.calculate_bic(mse)
+        print(f'Ridge RMSE: {self.rmse}')
+        print(f'Ridge BIC: {self.bic}')
 
     def initialize(self):
         self.load_data()
@@ -139,10 +145,6 @@ class RidgeRegressor:
             self.cross_validate()
         else:
             self.evaluate_model()
-
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(self.rmse, k)
-        self.bic = bic
 
     def predict(self, new_data):
         return self.model.predict(new_data)

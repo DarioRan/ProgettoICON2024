@@ -122,7 +122,7 @@ class LinearRegressor:
         self.train_model()
 
         if self.cross_validation:
-            k_values = [3, 5, 10, 15, 20, 40, 50, 60, 80, 100, 150, 200]
+            k_values = [3, 5, 10, 20]
             self.tune_k_folds(k_values)
             self.cross_validate()
         else:

@@ -1,6 +1,6 @@
 import ast
 import itertools
-
+from joblib import dump
 import numpy as np
 import pandas as pd
 import torch
@@ -254,6 +254,14 @@ class NeuralRegressor:
         bic = self.calculate_bic(mse.item())
         self.bic = bic
         print(f'Neural Net BIC: {bic}')
+
+    def save_model(self):
+        if self.cross_validation:
+            dump(self.model, 'output/models/neural_regressor_cv.joblib')
+            print(f'Modeel saved in output/models/neural_regressor_cv.joblib')
+        else:
+            dump(self.model, 'output/models/neural_regressor.joblib')
+            print(f'Modeel saved in output/models/neural_regressor.joblib')
 
     def initialize(self):
         self.load_data()

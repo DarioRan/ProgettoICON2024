@@ -1,5 +1,5 @@
 import ast
-
+from joblib import dump
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -125,6 +125,14 @@ class RidgeRegressor:
         self.bic = self.calculate_bic(mse)
         print(f'Ridge RMSE: {self.rmse}')
         print(f'Ridge BIC: {self.bic}')
+
+    def save_model(self):
+        if self.cross_validation:
+            dump(self.model, 'output/models/ridge_regressor_cv.joblib')
+            print(f'Modeel saved in output/models/ridge_regressor_cv.joblib')
+        else:
+            dump(self.model, 'output/models/ridge_regressor.joblib')
+            print(f'Modeel saved in output/models/ridge_regressor.joblib')
 
     def initialize(self):
         self.load_data()

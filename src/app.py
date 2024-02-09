@@ -3,6 +3,7 @@ import networkx as nx
 import pandas as pd
 from src.find_path.utils import calculate_distance, find_path_BB, generate_map, calculate_delivery_time
 from supervised_learning.linear_learner import LinearRegressor
+from joblib import load
 
 app = Flask(__name__)
 
@@ -80,7 +81,22 @@ def trova_ristorante():
     cuisine_type = data.get('cuisine_type')
     restourant_list = df[df['cuisine_type'] == cuisine_type]['restaurant_name']
     dishes_df = pd.read_csv('../dataset/dishes_df.csv')
-    linear_regressor = LinearRegressor(dishes_df)
+
+    regression_mode = data.get('selected_model')
+
+    linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
+    linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
+
+    ridge_regressor = load('supervised_learning/output/models/ridge_regressor.joblib')
+    ridge_regressor_with_cv = load('supervised_learning/output/models/ridge_regressor_cv.joblib')
+
+    lasso_regressor = load('supervised_learning/output/models/lasso_regressor.joblib')
+    lasso_regressor_with_cv = load('supervised_learning/output/models/lasso_regressor_cv.joblib')
+
+    neural_regressor = load('supervised_learning/output/models/neural_regressor.joblib')
+
+    boosted_regressor = load('supervised_learning/output/models/boosted_regressor.joblib')
+    boosted_regressor_with_cv = load('supervised_learning/output/models/boosted_regressor_cv.joblib')
 
     # lista temporanea, verrà sostituita da csp
     temp_list = []
@@ -91,8 +107,30 @@ def trova_ristorante():
         # inserire box per weekday o retrive da solo
         new_data = pd.DataFrame([(restaurant, 'Weekday', dish, lat, lon) for dish in dishes],
                                 columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
-        expected_preparation_time_list = linear_regressor.predict(new_data)
-        total_expected_time = expected_preparation_time_list.sum()
+        expected_preparation_time_list = []
+        if regression_mode == 'linearRegressor':
+            expected_preparation_time_list = linear_regressor.predict(new_data)
+        elif regression_mode == 'linearRegressorCV':
+            expected_preparation_time_list = linear_regressor_with_cv.predict(new_data)
+        elif regression_mode == 'ridge':
+            expected_preparation_time_list = ridge_regressor.predict(new_data)
+        elif regression_mode == 'ridgeCV':
+            expected_preparation_time_list = ridge_regressor_with_cv.predict(new_data)
+        elif regression_mode == 'lasso':
+            expected_preparation_time_list = lasso_regressor.predict(new_data)
+        elif regression_mode == 'lassoCV':
+            expected_preparation_time_list = lasso_regressor_with_cv.predict(new_data)
+        elif regression_mode == 'neuralNetwork':
+            expected_preparation_time_list = neural_regressor.predict(new_data)
+        elif regression_mode == 'boostedRegressor':
+            expected_preparation_time_list = boosted_regressor.predict(new_data)
+        elif regression_mode == 'boostedRegressorCV':
+            expected_preparation_time_list = boosted_regressor_with_cv.predict(new_data)
+
+        total_expected_time = 0
+        for value in expected_preparation_time_list:
+            total_expected_time += value
+
         temp_list.append((restaurant, total_expected_time))
 
     # ordiniamo per tempo di preparazione e ci prendiamo il primo ristorante, sempre temporanea come cosa

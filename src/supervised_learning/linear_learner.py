@@ -1,5 +1,5 @@
 import ast
-
+from joblib import dump
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -110,6 +110,15 @@ class LinearRegressor:
         self.bic = self.calculate_bic(mse)
         print(f'Linear RMSE: {self.rmse}')
         print(f'Linear BIC: {self.bic}')
+
+    def save_model(self):
+        if self.cross_validation:
+            dump(self.model, 'output/models/linear_regressor_cv.joblib')
+            print(f'Modeel saved in output/models/linear_regressor_cv.joblib')
+        else:
+            dump(self.model, 'output/models/linear_regressor.joblib')
+            print(f'Modeel saved in output/models/linear_regressor.joblib')
+
 
     def initialize(self):
         self.load_data()

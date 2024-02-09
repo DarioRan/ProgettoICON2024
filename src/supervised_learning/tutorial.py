@@ -11,22 +11,27 @@ from src.unsupervised_learning.kmn_learner import KMNClusterer
 df = pd.read_csv('../../dataset/dishes_df.csv')
 
 boosted_regressor = BoostedRegressor(df, False, False)
+boosted_regressor.save_model()
 boosted_regressor_with_cv = BoostedRegressor(df, True, False)
+boosted_regressor_with_cv.save_model()
 
 linear_regressor = LinearRegressor(df)
 linear_regressor_with_cv = LinearRegressor(df, True)
+linear_regressor.save_model()
+linear_regressor_with_cv.save_model()
 
 ridge_regressor = RidgeRegressor(df, alpha=0.1)
+ridge_regressor.save_model()
 ridge_regressor_with_cv = RidgeRegressor(df, True, alpha=0.1)
+ridge_regressor_with_cv.save_model()
 
 lasso_regressor = LassoRegressor(df,  alpha=0.1)
+lasso_regressor.save_model()
 lasso_regressor_with_cv = LassoRegressor(df, True, alpha=0.1)
-
-knn_clusterer = KMNClusterer(df, n_clusters=10, random_state=42)
-df_with_clusters = knn_clusterer.clusterize()
-
+lasso_regressor_with_cv.save_model()
 #implementare nl cv
-neural_regressor = NeuralRegressor(df, False, True)
+neural_regressor = NeuralRegressor(df, False, False)
+neural_regressor.save_model()
 
 
 plt.figure(figsize=(12, 8))

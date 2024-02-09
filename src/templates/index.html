@@ -124,6 +124,50 @@
 
         </div>
 
+        <div id="modelSelectionContainer" style="text-align: left;">
+            <p style="font-size: 18px;">Seleziona il modello di regressione:</p>
+            <div class="modelRadio">
+                <input type="radio" id="linearRegressor" name="model" value="linearRegressor">
+                <label for="linearRegressor">Regressore Lineare</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="linearRegressorCV" name="model" value="linearRegressorCV">
+                <label for="linearRegressorCV">Regressore Lineare con Cross-Validation</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="ridge" name="model" value="ridge">
+                <label for="ridge">Ridge</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="ridgeCV" name="model" value="ridgeCV">
+                <label for="ridgeCV">Ridge con Cross-Validation</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="lasso" name="model" value="lasso">
+                <label for="lasso">Lasso</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="lassoCV" name="model" value="lassoCV">
+                <label for="lassoCV">Lasso con Cross-Validation</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="neuralNetwork" name="model" value="neuralNetwork">
+                <label for="neuralNetwork">Neural Network</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="neuralNetworkCV" name="model" value="neuralNetworkCV">
+                <label for="neuralNetworkCV">Neural Network con Cross-Validation</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="boostedRegressor" name="model" value="boostedRegressor">
+                <label for="boostedRegressor">Boosted Regressor</label>
+            </div>
+            <div class="modelRadio">
+                <input type="radio" id="boostedRegressorCV" name="model" value="boostedRegressorCV">
+                <label for="boostedRegressorCV">Boosted Regressor con Cross-Validation</label>
+            </div>
+        </div>
+
 
         <br>
         <p align="left" style="font-size: 18px;">Inserisci i minuti di attesa</p>
@@ -233,7 +277,9 @@
 
 
         function findRestaurant() {
+            var selectedModel = document.querySelector('input[name="model"]:checked').value;
             var formData = {
+            model: selectedModel,
             cuisine_type: document.getElementById("cuisineTypeSelect").value,
             dishes: Array.from(document.getElementsByClassName("dishSelect")).map(select => select.value),
             waiting_time: document.getElementById("waitingTimeInput").value,

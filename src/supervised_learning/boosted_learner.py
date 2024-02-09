@@ -1,5 +1,5 @@
 import ast
-
+from joblib import dump
 import xgboost as xgb
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
@@ -113,6 +113,14 @@ class BoostedRegressor:
         self.bic = self.calculate_bic(mse)
         print(f"Boosted RMSE: {self.rmse}")
         print(f"Boosted BIC: {self.bic}")
+
+    def save_model(self):
+        if self.cross_validation:
+            dump(self.model, 'output/models/boosted_regressor_cv.joblib')
+            print(f'Model saved in output/models/boosted_regressor_cv.joblib')
+        else:
+            dump(self.model, 'output/models/boosted_regressor.joblib')
+            print(f'Model saved in output/models/boosted_regressor.joblib')
 
     def initialize(self):
         self.load_data()

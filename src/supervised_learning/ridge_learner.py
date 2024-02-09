@@ -2,6 +2,7 @@ import ast
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
@@ -11,7 +12,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 class RidgeRegressor:
-    def __init__(self, df, cross_validation = False, random_state=42, alpha=0.2, k=5, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation=False, random_state=42, alpha=0.2, k=5, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         if numerical_features is None:
             numerical_features = ['latitude', 'longitude']
@@ -60,33 +61,64 @@ class RidgeRegressor:
 
     def evaluate_model(self):
         y_pred = self.model.predict(self.X_test)
-        rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(rmse, k)
-        self.bic = bic
-        self.rmse = rmse
-        print(f'Ridge RMSE: {rmse}')
-        print(f'Ridge BIC: {bic}')
+        self.rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
+        print(f'Ridge RMSE: {self.rmse}')
 
     def cross_validate(self):
         ridge_scores = cross_val_score(self.model, self.X, self.y, cv=self.k, scoring='neg_mean_squared_error')
         ridge_rmse_scores = np.sqrt(-ridge_scores)
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(ridge_rmse_scores, k)
-        self.bic = bic
         self.rmse = ridge_rmse_scores.mean()
         print(f'Ridge Cross-validation RMSE: {ridge_rmse_scores.mean()} (± {ridge_rmse_scores.std()})')
-        print(f'Ridge BIC: {bic}')
 
     def tune_hyperparameters(self, param_grid):
         grid_search = GridSearchCV(self.model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
         grid_search.fit(self.X_train, self.y_train)
 
         best_params = grid_search.best_params_
-        print(best_params)
+        print(f"Best parameters: {best_params}")
+
+        alphas = grid_search.cv_results_['param_regressor__alpha']
+        mean_scores = -grid_search.cv_results_['mean_test_score']
+
+        self.plot_alpha_loss(alphas, mean_scores)
+
         best_estimator = grid_search.best_estimator_
         self.model = best_estimator
         return best_params
+
+    def plot_alpha_loss(self, alphas, mean_scores):
+        plt.figure(figsize=(10, 6))
+        plt.plot(alphas, mean_scores, marker='o', linestyle='-', color='blue')
+        plt.xlabel(r'$\alpha$')
+        plt.ylabel('Mean Squared Error')
+        plt.title('Ridge MSE vs. Alpha')
+        plt.grid(True)
+        plt.savefig('ridge_mse_vs_alpha.png')
+
+    def tune_k_folds(self, k_values):
+        k_fold_scores = {}
+        for k in k_values:
+            scores = cross_val_score(self.model, self.X, self.y, cv=k, scoring='neg_mean_squared_error')
+            rmse_scores = np.sqrt(-scores)
+            mean_rmse = rmse_scores.mean()
+            k_fold_scores[k] = mean_rmse
+            print(f'Ridge {k}-fold CV RMSE: {mean_rmse} (± {rmse_scores.std()})')
+
+        best_k = min(k_fold_scores, key=k_fold_scores.get)
+        print(f'Ridge Best k by lowest RMSE: {best_k}')
+        self.k = best_k
+        self.plot_cv_tuning(k_fold_scores)
+
+    def plot_cv_tuning(self, k_fold_scores):
+        # Plotting the RMSE for different k values
+        plt.figure(figsize=(8, 6))
+        plt.plot(list(k_fold_scores.keys()), list(k_fold_scores.values()), marker='o', linestyle='-', color='b')
+        plt.xlabel('Number of folds (k)')
+        plt.ylabel('Cross-validation RMSE')
+        plt.title('Ridge RMSE for Different k Values in Cross-validation')
+        plt.xticks(list(k_fold_scores.keys()))
+        plt.grid(True)
+        plt.savefig('ridge_k_tuning.png')
 
     def initialize(self):
         self.load_data()
@@ -94,16 +126,23 @@ class RidgeRegressor:
         self.train_test_split()
         self.initialize_model()
         param_grid = {
-            'regressor__alpha': [0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0,
-                                 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20, 50, 100, 500, 1000]
+            'regressor__alpha': [0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.82, 0.84, 0.86,
+                                 0.88, 0.9, 0.92, 0.94, 1.0,
+                                 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
         }
         self.tune_hyperparameters(param_grid)
         self.train_model()
 
         if self.cross_validation:
+            k_values = [3, 5, 10, 15, 20, 40, 50, 60, 80, 100, 150, 200]
+            self.tune_k_folds(k_values)
             self.cross_validate()
         else:
             self.evaluate_model()
+
+        k = len(self.model.named_steps['regressor'].coef_)
+        bic = self.calculate_bic(self.rmse, k)
+        self.bic = bic
 
     def predict(self, new_data):
         return self.model.predict(new_data)

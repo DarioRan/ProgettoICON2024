@@ -2,6 +2,7 @@ import ast
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -11,7 +12,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 class LinearRegressor:
-    def __init__(self, df, cross_validation = False, random_state=42, test_size=0.2, k=5, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation=False, random_state=42, test_size=0.2, k=5, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         if numerical_features is None:
             numerical_features = ['latitude', 'longitude']
@@ -60,22 +61,13 @@ class LinearRegressor:
 
     def evaluate_model(self):
         y_pred = self.model.predict(self.X_test)
-        rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(rmse, k)
-        self.bic = bic
-        self.rmse = rmse
-        print(f'Linear RMSE: {rmse}')
-        print(f'Linear BIC: {bic}')
+        self.rmse = np.sqrt(mean_squared_error(self.y_test, y_pred))
+        print(f'Linear RMSE: {self.rmse}')
 
     def cross_validate(self, scoring='neg_mean_squared_error'):
         scores = cross_val_score(self.model, self.X, self.y, cv=self.k, scoring=scoring)
         rmse_scores = np.sqrt(-scores)
-        k = len(self.model.named_steps['regressor'].coef_)
-        bic = self.calculate_bic(rmse_scores, k)
-        self.bic = bic
         self.rmse = rmse_scores.mean()
-        print(f'Linear BIC: {bic}')
         print(f'Linear Cross-validation RMSE: {rmse_scores.mean()} (± {rmse_scores.std()})')
         return rmse_scores
 
@@ -88,6 +80,31 @@ class LinearRegressor:
         best_estimator = grid_search.best_estimator_
         self.model = best_estimator
         return best_params
+
+    def tune_k_folds(self, k_values):
+        k_fold_scores = {}
+        for k in k_values:
+            scores = cross_val_score(self.model, self.X, self.y, cv=k, scoring='neg_mean_squared_error')
+            rmse_scores = np.sqrt(-scores)
+            mean_rmse = rmse_scores.mean()
+            k_fold_scores[k] = mean_rmse
+            print(f'Linear {k}-fold CV RMSE: {mean_rmse} (± {rmse_scores.std()})')
+
+        best_k = min(k_fold_scores, key=k_fold_scores.get)
+        print(f'Linear Best k by lowest RMSE: {best_k}')
+        self.k = best_k
+        self.plot_cv_tuning(k_fold_scores)
+
+    def plot_cv_tuning(self, k_fold_scores):
+        # Plotting the RMSE for different k values
+        plt.figure(figsize=(8, 6))
+        plt.plot(list(k_fold_scores.keys()), list(k_fold_scores.values()), marker='o', linestyle='-', color='b')
+        plt.xlabel('Number of folds (k)')
+        plt.ylabel('Cross-validation RMSE')
+        plt.title('Linear RMSE for Different k Values in Cross-validation')
+        plt.xticks(list(k_fold_scores.keys()))
+        plt.grid(True)
+        plt.savefig('linear_k_tuning.png')
 
     def initialize(self):
         self.load_data()
@@ -105,9 +122,15 @@ class LinearRegressor:
         self.train_model()
 
         if self.cross_validation:
+            k_values = [3, 5, 10, 15, 20, 40, 50, 60, 80, 100, 150, 200]
+            self.tune_k_folds(k_values)
             self.cross_validate()
         else:
             self.evaluate_model()
+
+        k = len(self.model.named_steps['regressor'].coef_)
+        bic = self.calculate_bic(self.rmse, k)
+        self.bic = bic
 
 
     def predict(self, new_data):

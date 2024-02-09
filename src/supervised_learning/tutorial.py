@@ -3,17 +3,11 @@ from matplotlib import pyplot as plt
 
 from src.supervised_learning.neural_learner import NeuralRegressor
 from src.supervised_learning.ridge_learner import RidgeRegressor
-from src.supervised_learning.linear_lerner import LinearRegressor
+from src.supervised_learning.linear_learner import LinearRegressor
 from src.supervised_learning.lasso_learner import LassoRegressor
 from src.unsupervised_learning.kmn_learner import KMNClusterer
 
 df = pd.read_csv('../../dataset/dishes_df.csv')
-
-knn_clusterer = KMNClusterer(df, n_clusters=10, random_state=42)
-df_with_clusters = knn_clusterer.clusterize()
-
-neural_regressor = NeuralRegressor(df)
-neural_regressor_with_cv = NeuralRegressor(df, True)
 
 linear_regressor = LinearRegressor(df, )
 linear_regressor_with_cv = LinearRegressor(df, True)
@@ -23,6 +17,12 @@ ridge_regressor_with_cv = RidgeRegressor(df, True, alpha=0.1)
 
 lasso_regressor = LassoRegressor(df,  alpha=0.1)
 lasso_regressor_with_cv = LassoRegressor(df, True, alpha=0.1)
+
+knn_clusterer = KMNClusterer(df, n_clusters=10, random_state=42)
+df_with_clusters = knn_clusterer.clusterize()
+
+#aggiusta cv di neural
+neural_regressor = NeuralRegressor(df)
 
 linear_regressor_bic = linear_regressor.bic
 ridge_regressor_bic = ridge_regressor.bic
@@ -39,12 +39,13 @@ plt.savefig('bic_comparison.png')
 
 
 plt.figure(figsize=(8, 5))
-model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor', 'Neural Regressor with CV']
-rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse, neural_regressor_with_cv.rmse]
+model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor']
+rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse]
 plt.bar(model_names, rmse_values, color=['blue', 'orange'])
 plt.ylabel('RMSE')
 plt.title('RMSE of Different Regressors')
 plt.savefig('rmse_comparison.png')
+
 
 """
 new_data = pd.DataFrame([
@@ -61,4 +62,6 @@ print(pred1)
 print(pred2)
 print(pred3)
 print(pred4)"""
+
+#plotta i cv
 

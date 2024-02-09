@@ -31,7 +31,7 @@ class PyTorchRegressor(nn.Module):
 
 
 class NeuralRegressor:
-    def __init__(self, df, cross_validation = False, random_state=42, test_size=0.2,  k=5, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation=False, random_state=42, test_size=0.2,  k=5, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         self.random_state = random_state
         self.test_size = test_size
@@ -235,13 +235,12 @@ class NeuralRegressor:
         plt.ylabel('Average Loss')
         plt.tight_layout()
         plt.grid(True)
-        plt.show()
+        plt.savefig('top_10_hyperparameter_combinations.png')
 
     def train_model_with_best_params(self):
         X_train_tensor = torch.tensor(self.X_train.todense().astype(np.float32))
         y_train_tensor = torch.tensor(self.y_train.astype(np.float32))
 
-        # Crea un DataLoader con il miglior batch_size
         train_data = TensorDataset(X_train_tensor, y_train_tensor)
         train_loader = DataLoader(dataset=train_data, batch_size=self.best_params['batch_size'], shuffle=True)
 
@@ -260,6 +259,18 @@ class NeuralRegressor:
                 optimizer.step()
             print(f'Epoch {epoch + 1}/{self.best_params["epochs"]}, loss: {loss.item()}')
 
+    def tune_k_folds(self, k_values):
+        k_fold_scores = {}
+        for k in k_values:
+            scores = cross_val_score(self.model, self.X, self.y, cv=k, scoring='neg_mean_squared_error')
+            rmse_scores = np.sqrt(-scores)
+            mean_rmse = rmse_scores.mean()
+            k_fold_scores[k] = mean_rmse
+            print(f'Neural Net {k}-fold CV RMSE: {mean_rmse} (± {rmse_scores.std()})')
+
+        best_k = min(k_fold_scores, key=k_fold_scores.get)
+        print(f'Neural Net Best k by lowest RMSE: {best_k}')
+        self.k = best_k
 
 
     def initialize(self):
@@ -267,11 +278,19 @@ class NeuralRegressor:
         self.preprocess()
         self.train_test_split()
         param_grid = {
-            'lr': [1e-2, 1e-3, 1e-4],
-            'batch_size': [16, 32, 64],
-            'epochs': [50, 100, 150],
-            'dropout': [0, 0.1, 0.2]
+            'lr': [1e-2, 1e-1],
+            'batch_size': [8, 16],
+            'epochs': [100, 150],
+            'dropout': [0, 0.1]
         }
         self.tune_hyperparameters(param_grid)
         self.train_model_with_best_params()
-        self.evaluate_model()
+
+        if self.cross_validation:
+            k_values = [3, 5, 10, 15, 20]
+            self.tune_k_folds(k_values)
+            #sbagliata di regola
+            self.cross_validate()
+        else:
+            self.evaluate_model()
+

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import networkx as nx
 import pandas as pd
 from src.find_path.utils import calculate_distance, find_path_BB, generate_map, calculate_delivery_time
-from supervised_learning.linear_lerner import LinearRegressor
+from supervised_learning.linear_learner import LinearRegressor
 
 app = Flask(__name__)
 

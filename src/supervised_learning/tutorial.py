@@ -1,6 +1,7 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from src.supervised_learning.boosted_learner import BoostedRegressor
 from src.supervised_learning.neural_learner import NeuralRegressor
 from src.supervised_learning.ridge_learner import RidgeRegressor
 from src.supervised_learning.linear_learner import LinearRegressor
@@ -9,7 +10,10 @@ from src.unsupervised_learning.kmn_learner import KMNClusterer
 
 df = pd.read_csv('../../dataset/dishes_df.csv')
 
-linear_regressor = LinearRegressor(df, )
+boosted_regressor = BoostedRegressor(df, False, False)
+boosted_regressor_with_cv = BoostedRegressor(df, True, False)
+
+linear_regressor = LinearRegressor(df)
 linear_regressor_with_cv = LinearRegressor(df, True)
 
 ridge_regressor = RidgeRegressor(df, alpha=0.1)
@@ -21,8 +25,8 @@ lasso_regressor_with_cv = LassoRegressor(df, True, alpha=0.1)
 knn_clusterer = KMNClusterer(df, n_clusters=10, random_state=42)
 df_with_clusters = knn_clusterer.clusterize()
 
-#aggiusta cv di neural
-neural_regressor = NeuralRegressor(df)
+#implementare nl cv
+neural_regressor = NeuralRegressor(df, False, False)
 
 linear_regressor_bic = linear_regressor.bic
 ridge_regressor_bic = ridge_regressor.bic

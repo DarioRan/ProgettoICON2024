@@ -105,6 +105,9 @@ def trova_ristorante():
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
     linear_regressor_with_ing_feature = load('supervised_learning/output/models/linear_regressor_engineered.joblib')
 
+    linear_regressor_with_sgd = load('supervised_learning/output/models/SGDlinear_regressor.joblib')
+    linear_regressor_with_sgd_cv = load('supervised_learning/output/models/SGDlinear_regressor_cv.joblib')
+
     ridge_regressor = load('supervised_learning/output/models/ridge_regressor.joblib')
     ridge_regressor_with_cv = load('supervised_learning/output/models/ridge_regressor_cv.joblib')
 
@@ -137,6 +140,10 @@ def trova_ristorante():
             expected_preparation_time_list = linear_regressor.predict(new_data)
         elif regression_mode == 'linearRegressorCV':
             expected_preparation_time_list = linear_regressor_with_cv.predict(new_data)
+        elif regression_mode == 'LinearRegressorSGD':
+            expected_preparation_time_list = linear_regressor_with_sgd.predict(new_data)
+        elif regression_mode == 'LinearRegressorSGDCV':
+            expected_preparation_time_list = linear_regressor_with_sgd_cv.predict(new_data)
         elif regression_mode == 'ridge':
             expected_preparation_time_list = ridge_regressor.predict(new_data)
         elif regression_mode == 'ridgeCV':

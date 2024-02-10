@@ -7,6 +7,7 @@ from src.supervised_learning.ridge_learner import RidgeRegressor
 from src.supervised_learning.linear_learner import LinearRegressor
 from src.supervised_learning.lasso_learner import LassoRegressor
 from src.unsupervised_learning.kmn_learner import KMNClusterer
+from src.supervised_learning.SGDLearner import SGDLeaner
 
 df = pd.read_csv('../../dataset/dishes_df.csv')
 
@@ -19,6 +20,9 @@ linear_regressor = LinearRegressor(df)
 linear_regressor_with_cv = LinearRegressor(df, True)
 linear_regressor.save_model()
 linear_regressor_with_cv.save_model()
+
+sgd_regressor = SGDLeaner(df)
+sgd_regressor_with_cv = SGDLeaner(df, True  , random_state=42)
 
 ridge_regressor = RidgeRegressor(df, alpha=0.1)
 ridge_regressor.save_model()
@@ -34,6 +38,7 @@ neural_regressor = NeuralRegressor(df, False, False)
 neural_regressor.save_model()
 
 
+
 plt.figure(figsize=(12, 8))
 model_names = ['Linear Regressor', 'Ridge Regressor', 'Lasso Regressor', 'Neural Regressor', 'Boosted Regressor']
 bic_values = [linear_regressor.bic, ridge_regressor.bic, lasso_regressor.bic, neural_regressor.bic, boosted_regressor.bic]
@@ -46,8 +51,8 @@ plt.savefig('output/bic_comparison.png')
 print(linear_regressor.rmse)
 print(linear_regressor_with_cv.rmse)
 plt.figure(figsize=(18, 14))
-model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor', 'Boosted Regressor', 'Boosted Regressor with CV']
-rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse, boosted_regressor.rmse, boosted_regressor_with_cv.rmse]
+model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor', 'Boosted Regressor', 'Boosted Regressor with CV', 'SGD Regressor with CV']
+rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse, boosted_regressor.rmse, boosted_regressor_with_cv.rmse, sgd_regressor_with_cv.rmse]
 rmse_values.sort()
 plt.bar(model_names, rmse_values, color=['blue', 'orange'])
 plt.ylabel('RMSE')

@@ -7,6 +7,7 @@ from src.find_path.utils import calculate_distance, find_path_BB, generate_map, 
 from joblib import load
 from KB.KB import KB
 import datetime
+from src.belief_network.utils.utils import predict_road_closure_probability
 
 app = Flask(__name__)
 
@@ -171,6 +172,9 @@ def trova_ristorante():
 
         temp_list2.append((restaurant[0]['restaurant_name'], restaurant[0]['restaurant_location'],
                            tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec))
+
+        #calcola probabilità trovare un blocco stradale
+        prob_delayed=predict_road_closure_probability(G, '18:00', shortest_path)
 
     temp_list2.sort(key=lambda x: x[2])
 

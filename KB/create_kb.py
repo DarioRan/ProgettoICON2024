@@ -12,7 +12,7 @@ def write_fact_to_file(fact, file_path):
 
 
 def writeOrdersInfo(dataSet):
-    file_path = 'knowledge_base.pl'
+    file_path = 'knowledge_base_orders.pl'
     with open(file_path, "w", encoding="utf-8"):  # Sovrascrivi il file (svuotalo)
         write_fact_to_file(":- encoding(utf8)", file_path)
         for index, row in dataSet.iterrows():
@@ -67,4 +67,4 @@ dataSet = pd.read_csv('../dataset/food_order_final.csv')
 # Esegui la funzione writeOrdersInfo per ogni riga del dataset
 writeOrdersInfo(dataSet)
 # Correggi gli ordini nel file
-fix_orders('knowledge_base.pl')
+fix_orders('knowledge_base_orders.pl')

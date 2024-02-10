@@ -104,7 +104,7 @@ def trova_ristorante():
 
     kmn_clusterer = load('unsupervised_learning/output/models/kmn_clusterer.joblib')
 
-    #linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
+    linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
     linear_regressor_with_ing_feature = load('supervised_learning/output/models/linear_regressor_engineered.joblib')
 
@@ -142,8 +142,8 @@ def trova_ristorante():
         new_data_tensor = torch.tensor(new_data_processed.todense().astype(np.float32))
 
         expected_preparation_time_list = []
-        #if regression_mode == 'linearRegressor':
-            #expected_preparation_time_list = linear_regressor.predict(new_data)
+        if regression_mode == 'linearRegressor':
+            expected_preparation_time_list = linear_regressor.predict(new_data)
         if regression_mode == 'linearRegressorCV':
             expected_preparation_time_list = linear_regressor_with_cv.predict(new_data)
         elif regression_mode == 'LinearRegressorSGD':

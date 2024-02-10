@@ -2,6 +2,7 @@ import ast
 
 import numpy as np
 import pandas as pd
+from joblib import dump
 from matplotlib import pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import SGDRegressor
@@ -63,8 +64,6 @@ class SGDLeaner:
             'regressor__max_iter': max_iter,
             'regressor__penalty': penalty,
             'regressor__power_t': power_t
-
-
         }
         grid_search = GridSearchCV(self.model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
         grid_search.fit(self.X_train, self.y_train)
@@ -137,6 +136,17 @@ class SGDLeaner:
         print(f'SGDLinear RMSE: {self.rmse}')
         print(f'SGDLinear BIC: {self.bic}')
 
+    def save_model(self):
+
+        if self.cross_validation:
+            print(f'Saving model to output/models/SGDlinear_regressor_cv.joblib')
+            dump(self.model, 'output/models/SGDlinear_regressor_cv.joblib')
+
+        else:
+            print(f'Saving model to output/models/SGDlinear_regressor.joblib')
+            dump(self.model, 'output/models/SGDlinear_regressor.joblib')
+
+
     def initialize(self):
         self.load_data()
         self.preprocess()
@@ -145,7 +155,7 @@ class SGDLeaner:
 
         self.train_model()
 
-        #self.tune_hyperparameters()
+        self.tune_hyperparameters()
 
 
         if self.cross_validation:

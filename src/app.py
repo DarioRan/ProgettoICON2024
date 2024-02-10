@@ -7,7 +7,7 @@ from src.find_path.utils import calculate_distance, find_path_BB, generate_map, 
 from joblib import load
 from KB.KB import KB
 import datetime
-from src.belief_network.utils.utils import predict_road_closure_probability
+from src.belief_network.belief_network import BeliefNetwork
 
 
 app = Flask(__name__)
@@ -119,6 +119,9 @@ def trova_ristorante():
     boosted_regressor = load('supervised_learning/output/models/boosted_regressor.joblib')
     boosted_regressor_with_cv = load('supervised_learning/output/models/boosted_regressor_cv.joblib')
 
+    bn = BeliefNetwork(accidents_df)
+    bn.train_model()
+
     # lista temporanea, verrà sostituita da csp
     temp_list = []
     for index, restaurant in restaurant_locations.iterrows():
@@ -163,6 +166,9 @@ def trova_ristorante():
             new_data['cluster'] = cluster_labels
             expected_preparation_time_list = linear_regressor_with_ing_feature.predict(new_data)
 
+
+
+
         total_expected_prep_time = 0
         for value in expected_preparation_time_list:
             total_expected_prep_time += value
@@ -191,8 +197,8 @@ def trova_ristorante():
         temp_list2.append((restaurant[0]['restaurant_name'], restaurant[0]['restaurant_location'],
                            tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec))
 
-        #calcola probabilità trovare un blocco stradale
-        #prob_delayed=predict_road_closure_probability(accidents_df,G, '18:00', shortest_path)
+
+        bn.predict_road_closure_probability(G, '10:00', shortest_path)
 
     temp_list2.sort(key=lambda x: x[2])
 

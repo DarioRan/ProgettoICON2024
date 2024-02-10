@@ -3,23 +3,22 @@ import networkx as nx
 import pandas as pd
 from src.find_path.utils import calculate_distance, find_path_BB, generate_map, calculate_delivery_time
 from joblib import load
+from KB.KB import KB
+import datetime
 
 app = Flask(__name__)
 
 # Carica il grafo all'avvio dell'applicazione
 G = nx.read_graphml('../dataset/newyork_final.graphml')
 
-df = pd.read_csv('../dataset/food_order_final.csv')
+KB = KB()
 
-cuisine_types = df['cuisine_type'].unique()
-
+cuisine_types = KB.get_all_cuisine_types()
 cuisine_dishes_map = {}
 
 # Popola il dizionario con le informazioni necessarie
 for cuisine_type in cuisine_types:
-    dishes_list = []
-    for index, row in df[df['cuisine_type'] == cuisine_type].iterrows():
-        dishes_list.extend([dish['dish_name'] for dish in eval(row['dishes'])])
+    dishes_list = KB.get_dishes_by_cuisine(str(cuisine_type))
     cuisine_dishes_map[cuisine_type] = list(set(dishes_list))
 
 # Coordinate dei punti di partenza e arrivo
@@ -78,10 +77,18 @@ def trova_ristorante():
     global total_expected_prep_time
     data = request.get_json()
     cuisine_type = data.get('cuisine_type')
-    restourant_list = df[df['cuisine_type'] == cuisine_type]['restaurant_name']
+    dishes = data.get('dishes')
+    regression_mode = data.get('model')
+    oggi = datetime.datetime.now()
+    numero_giorno_settimana = oggi.isoweekday()
+    weekday = ''
+    if numero_giorno_settimana in range(1, 6):
+        weekday = 'Weekday'
+    else:
+        weekday = 'Weekend'
 
     # dataframe con nome ristorante e location
-    restaurant_locations = df[df['cuisine_type'] == cuisine_type][['restaurant_name', 'restaurant_location']]
+    restaurant_locations = KB.get_restaurant_location_by_cuisine(str(cuisine_type)).drop_duplicates()
 
     linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
@@ -99,20 +106,20 @@ def trova_ristorante():
 
     # lista temporanea, verrà sostituita da csp
     temp_list = []
-    for restaurant in restourant_list:
-        dishes = data.get('dishes')
-        lat = data.get('start_coords')['lat']
-        lon = data.get('start_coords')['lon']
-        regression_mode = data.get('model')
+    for index, restaurant in restaurant_locations.iterrows():
+
+        restaurant_location_str = restaurant['restaurant_location']
+        restaurant_location_tuple = tuple(map(float, restaurant_location_str.strip('()').split(',')))
+        lat = str(restaurant_location_tuple[0])
+        lon = str(restaurant_location_tuple[1])
+
         # inserire box per weekday o retrive da solo
-        new_data = pd.DataFrame([(restaurant, 'Weekday', dish, lat, lon) for dish in dishes],
+        new_data = pd.DataFrame([(restaurant['restaurant_name'], weekday, dish, lat, lon) for dish in dishes],
                                 columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
 
         expected_preparation_time_list = []
         if regression_mode == 'linearRegressor':
-            print("sono qui")
             expected_preparation_time_list = linear_regressor.predict(new_data)
-            print(expected_preparation_time_list)
         elif regression_mode == 'linearRegressorCV':
             expected_preparation_time_list = linear_regressor_with_cv.predict(new_data)
         elif regression_mode == 'ridge':
@@ -139,48 +146,45 @@ def trova_ristorante():
     # ordiniamo per tempo di preparazione e ci prendiamo il primo ristorante, sempre temporanea come cosa
     temp_list.sort(key=lambda x: x[1])
 
-    restaurant_name = temp_list[0][0]
-    preparation_time = temp_list[0][1]
-
-    # csp su ristoranti e visualizzare
+    # lista ristornati ordinati in base al tot delivery time
+    temp_list2 = []
     for restaurant in temp_list[:10]:
-        restaurant_lat_long = \
-        restaurant_locations[restaurant_locations['restaurant_name'] == restaurant[0]]['restaurant_location'].iloc[
-            0].strip('()').split(', ')
-        restaurant_loc_json = {'lat': float(restaurant_lat_long[0]), 'lon': float(restaurant_lat_long[1])}
-        shortest_path, street_names = find_path_BB(G, data.get('start_coords')['lat'], data.get('start_coords')['lon'],
-                                                   restaurant_loc_json['lat'], restaurant_loc_json['lon'])
+        restaurant_location_str = restaurant[0]['restaurant_location']
+        restaurant_location_tuple = tuple(map(float, restaurant_location_str.strip('()').split(',')))
+        restaurant_loc_json = {'lat': float(restaurant_location_tuple[0]), 'lon': float(restaurant_location_tuple[1])}
+        shortest_path, street_names = find_path_BB(G, restaurant_loc_json['lat'], restaurant_loc_json['lon'],
+                                                   data.get('start_coords')['lat'], data.get('start_coords')['lon'])
 
         delivery_time = calculate_delivery_time(G, shortest_path)
 
-        tot_delivery_time = delivery_time[0] * 60 + delivery_time[1] + total_expected_prep_time
-        # lista ristornati ordinati in base al tot delivery time
-        temp_list2 = []
-        temp_list2.append((restaurant[0], tot_delivery_time))
+        delivery_time_sec = delivery_time[0] * 60 + delivery_time[1]
+        preparation_time_sec = restaurant[1] * 60
 
-    temp_list2.sort(key=lambda x: x[1])
+        tot_delivery_time_seconds = delivery_time_sec + preparation_time_sec
 
-    best_restaurant_tot_time = df[df['restaurant_name'] == temp_list2[0][0]].iloc[0]
+        temp_list2.append((restaurant[0]['restaurant_name'], restaurant[0]['restaurant_location'],
+                           tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec))
 
-    return jsonify_restaurant(best_restaurant_tot_time, preparation_time)
+    temp_list2.sort(key=lambda x: x[2])
+
+    restaurant_name = temp_list2[0][0]
+    restaurant_location_str = temp_list2[0][1]
+
+    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4])
 
 
-def jsonify_restaurant(restaurant, preparation_time):
-    if not restaurant.empty:
-        nome_ristorante = restaurant['restaurant_name']
-        lat_lon_string = restaurant['restaurant_location'].strip('()').split(', ')
-        lat, lon = map(float, lat_lon_string)
-        posizione_ristorante = {'lat': lat, 'lon': lon}
-        rating_ristorante = str(restaurant['rating'])
-        tempo_preparazione = str(preparation_time)
-        tempo_consegna = str(restaurant['delivery_time'])
-        return jsonify({'nome_ristorante': nome_ristorante,
-                        'posizione_ristorante': posizione_ristorante,
-                        'rating_ristorante': rating_ristorante,
-                        'tempo_preparazione': tempo_preparazione,
-                        'tempo_consegna': tempo_consegna})
-    else:
-        return jsonify({'nome_ristorante': None, 'posizione_ristorante': None})
+def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time):
+
+    nome_ristorante = restaurant_name
+    lat_lon_string = restaurant_location.strip('()').split(', ')
+    lat, lon = map(float, lat_lon_string)
+    posizione_ristorante = {'lat': lat, 'lon': lon}
+    tempo_preparazione = str(round(preparation_time/60))
+    tempo_consegna = str(round(delivery_time/60))
+    return jsonify({'nome_ristorante': nome_ristorante,
+                    'posizione_ristorante': posizione_ristorante,
+                    'tempo_preparazione': tempo_preparazione,
+                    'tempo_consegna': tempo_consegna})
 
 
 if __name__ == '__main__':

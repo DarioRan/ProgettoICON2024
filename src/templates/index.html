@@ -193,10 +193,12 @@
 
 
         <br><br>
+        <p id="message" style="font-size: 24px;" align="left"></p>
+        <p id="message2" style="font-size: 18px;" align="left"></p>
+        <div id="loading"> </div>
         <p id="restaurantName" style="font-size: 24px;" align="left"></p>
         <p id="PreparationTime" style="font-size: 19px;" align="left"></p>
         <p id="DeliveryTime" style="font-size: 19px;" align="left"></p>
-
         <div id="pathMap" class="custom-height" style="width: 100%; margin-top: 20px; margin-bottom: 20px;"></div>
 
     </div>
@@ -297,6 +299,21 @@
             start_coords: start_coords  // Cambiato da user_coords a start_coords
         };
 
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("message").style.display = "none";
+                    document.getElementById("message2").style.display = "none";
+            document.getElementById("restaurantName").style.display = "none";
+            document.getElementById("PreparationTime").style.display = "none";
+            document.getElementById("DeliveryTime").style.display = "none";
+            document.getElementById("pathMap").style.display = "none";
+            var loadingImg = document.createElement("img");
+            loadingImg.src = "/static/loading.gif"; // Assicurati di sostituire "loading.gif" con il percorso corretto della tua GIF di caricamento
+            var loadingDiv = document.getElementById("loading");
+            loadingImg.style.width = "30%";
+            loadingImg.style.height = "30%";
+            loadingDiv.innerHTML = "";
+            loadingDiv.appendChild(loadingImg);
+
             // Invia i dati al server per trovare il ristorante
             fetch('/find_restaurant', {
                 method: 'POST',
@@ -307,16 +324,41 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Estrai le coordinate del ristorante
-                var restaurantCoords = data.posizione_ristorante;
+                if (data.message) {
+                    document.getElementById("message").style.display = "block";
+                    document.getElementById("message2").style.display = "block";
+                    document.getElementById("message").textContent   = data.message;
+                    document.getElementById("loading").style.display = "none";
+                    document.getElementById("restaurantName").style.display = "block";
+                    document.getElementById("PreparationTime").style.display = "block";
+                    document.getElementById("DeliveryTime").style.display = "block";
+                    document.getElementById("message2").textContent   = "Il ristorante più veloce è: ";
+                    document.getElementById("restaurantName").textContent   = "Ristorante:          " + data.nome_ristorante;
+                    document.getElementById("PreparationTime").textContent  = "Tempo di preparazione: " + data.tempo_preparazione + " minuti";
+                    document.getElementById("DeliveryTime").textContent     = "Tempo di consegna    : " + data.tempo_consegna + " minuti";
+                    document.getElementById("restaurantName").style.fontSize = "18px";
+                    document.getElementById("PreparationTime").style.fontSize = "18px";
+                    document.getElementById("DeliveryTime").style.fontSize = "18px";
+                }
+                else {
+                    // Estrai le coordinate del ristorante
+                    var restaurantCoords = data.posizione_ristorante;
 
-                // Chiamare calculatePath() con le coordinate di partenza e di arrivo
-                calculatePath(restaurantCoords, start_coords);
+                    // Chiamare calculatePath() con le coordinate di partenza e di arrivo
+                    calculatePath(restaurantCoords, start_coords);
 
-                // Aggiorna il nome del ristorante nell'HTML
-                document.getElementById("restaurantName").textContent   = "Ristorante:          " + data.nome_ristorante;
-                document.getElementById("PreparationTime").textContent  = "Tempo di preparazione: " + data.tempo_preparazione + " minuti";
-                document.getElementById("DeliveryTime").textContent     = "Tempo di consegna    : " + data.tempo_consegna + " minuti";
+                    // Aggiorna il nome del ristorante nell'HTML
+                    document.getElementById("pathMap").style.display = "block";
+                    document.getElementById("restaurantName").textContent   = "Ristorante:          " + data.nome_ristorante;
+                    document.getElementById("PreparationTime").textContent  = "Tempo di preparazione: " + data.tempo_preparazione + " minuti";
+                    document.getElementById("DeliveryTime").textContent     = "Tempo di consegna    : " + data.tempo_consegna + " minuti";
+                    document.getElementById("message").style.display = "none";
+                    document.getElementById("message2").style.display = "none";
+                    document.getElementById("restaurantName").style.fontSize = "24px";
+                    document.getElementById("PreparationTime").style.fontSize = "24px";
+                    document.getElementById("DeliveryTime").style.fontSize = "24px";
+
+                }
 
             })
             .catch(error => {
@@ -341,7 +383,12 @@
                     L.polyline(path, { color: 'blue' }).addTo(map);
                 });
 
-                document.getElementById("pathMap").innerHTML = response.map;
+                var pathMapDiv = document.getElementById("pathMap");
+                pathMapDiv.innerHTML = response.map;
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("restaurantName").style.display = "block";
+                document.getElementById("PreparationTime").style.display = "block";
+                document.getElementById("DeliveryTime").style.display = "block";
             });
         }
 

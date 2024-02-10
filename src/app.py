@@ -81,18 +81,21 @@ def calculate_path():
 
 @app.route('/find_restaurant', methods=['POST'])
 def trova_ristorante():
+
     global total_expected_prep_time
     data = request.get_json()
     cuisine_type = data.get('cuisine_type')
     dishes = data.get('dishes')
     regression_mode = data.get('model')
-    oggi = datetime.datetime.now()
-    numero_giorno_settimana = oggi.isoweekday()
+    today = datetime.datetime.now()
+    number_day_of_week = today.isoweekday()
     weekday = ''
-    if numero_giorno_settimana in range(1, 6):
+    if number_day_of_week in range(1, 6):
         weekday = 'Weekday'
     else:
         weekday = 'Weekend'
+
+    waiting_time = data.get('waiting_time')
 
     # dataframe con nome ristorante e location
     restaurant_locations = KB.get_restaurant_location_by_cuisine(str(cuisine_type)).drop_duplicates()
@@ -101,7 +104,7 @@ def trova_ristorante():
 
     kmn_clusterer = load('unsupervised_learning/output/models/kmn_clusterer.joblib')
 
-    linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
+    #linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
     linear_regressor_with_ing_feature = load('supervised_learning/output/models/linear_regressor_engineered.joblib')
 
@@ -136,9 +139,9 @@ def trova_ristorante():
         new_data_tensor = torch.tensor(new_data_processed.todense().astype(np.float32))
 
         expected_preparation_time_list = []
-        if regression_mode == 'linearRegressor':
-            expected_preparation_time_list = linear_regressor.predict(new_data)
-        elif regression_mode == 'linearRegressorCV':
+        #if regression_mode == 'linearRegressor':
+            #expected_preparation_time_list = linear_regressor.predict(new_data)
+        if regression_mode == 'linearRegressorCV':
             expected_preparation_time_list = linear_regressor_with_cv.predict(new_data)
         elif regression_mode == 'LinearRegressorSGD':
             expected_preparation_time_list = linear_regressor_with_sgd.predict(new_data)
@@ -199,10 +202,10 @@ def trova_ristorante():
     restaurant_name = temp_list2[0][0]
     restaurant_location_str = temp_list2[0][1]
 
-    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4])
+    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4], waiting_time)
 
 
-def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time):
+def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time, waiting_time):
 
     nome_ristorante = restaurant_name
     lat_lon_string = restaurant_location.strip('()').split(', ')
@@ -210,10 +213,15 @@ def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, prep
     posizione_ristorante = {'lat': lat, 'lon': lon}
     tempo_preparazione = str(round(preparation_time/60))
     tempo_consegna = str(round(delivery_time/60))
-    return jsonify({'nome_ristorante': nome_ristorante,
-                    'posizione_ristorante': posizione_ristorante,
-                    'tempo_preparazione': tempo_preparazione,
-                    'tempo_consegna': tempo_consegna})
+    if round(preparation_time/60) + round(delivery_time/60) <= int(waiting_time):
+        return jsonify({'nome_ristorante': nome_ristorante,
+                        'posizione_ristorante': posizione_ristorante,
+                        'tempo_preparazione': tempo_preparazione,
+                        'tempo_consegna': tempo_consegna})
+    else:
+        message = f'Non ci sono ristoranti in grado di effettuare la consegna in {waiting_time} minuti'
+        return jsonify({'message': message, 'nome_ristorante': nome_ristorante,
+                        'tempo_preparazione': tempo_preparazione, 'tempo_consegna': tempo_consegna})
 
 
 if __name__ == '__main__':

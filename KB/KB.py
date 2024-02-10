@@ -52,3 +52,8 @@ class KB:
 
         df = pd.DataFrame(restaurants_data)
         return df
+
+    def get_dishes_info(self):
+        dishes = self.prolog.query("get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes)")
+        dishes_list = [d['Dishes'] for d in dishes]
+        return dishes_list[0]

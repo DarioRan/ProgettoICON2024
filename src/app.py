@@ -94,8 +94,11 @@ def trova_ristorante():
 
     preprocessor = load('supervised_learning/output/models/preprocessor.joblib')
 
+    kmn_clusterer = load('unsupervised_learning/output/models/kmn_clusterer.joblib')
+
     linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
+    linear_regressor_with_ing_feature = load('supervised_learning/output/models/linear_regressor_engineered.joblib')
 
     ridge_regressor = load('supervised_learning/output/models/ridge_regressor.joblib')
     ridge_regressor_with_cv = load('supervised_learning/output/models/ridge_regressor_cv.joblib')
@@ -143,6 +146,10 @@ def trova_ristorante():
             expected_preparation_time_list = boosted_regressor.predict(new_data_processed)
         elif regression_mode == 'boostedRegressorCV':
             expected_preparation_time_list = boosted_regressor_with_cv.predict(new_data_processed)
+        elif regression_mode == 'LinearRegressorEF':
+            cluster_labels = kmn_clusterer.predict((preprocessor.transform(new_data)))
+            new_data['cluster'] = cluster_labels
+            expected_preparation_time_list = linear_regressor_with_ing_feature.predict(new_data)
 
         total_expected_prep_time = 0
         for value in expected_preparation_time_list:

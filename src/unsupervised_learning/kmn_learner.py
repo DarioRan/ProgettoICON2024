@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-
+from joblib import dump
 
 class KMNClusterer:
     def __init__(self, df, n_clusters=5, random_state=42):
@@ -47,6 +47,9 @@ class KMNClusterer:
 
     def train_model(self):
         self.model.fit(self.X_scaled)
+
+    def save_model(self):
+        dump(self.model, 'output/models/kmn_clusterer.joblib')
 
     def initialize(self):
         self.load_data()

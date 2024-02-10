@@ -2401,3 +2401,6 @@ all_cuisine_types(CuisineTypes) :-
 
 restaurant_loc_by_cuisine(CuisineType, RestaurantName, RestaurantLocation) :-
     order(_, _, RestaurantName, CuisineType, _, _, _, _, _, RestaurantLocation, _, _).
+
+get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes) :-
+    order(_, _, RestaurantName, _, _, DayOfWeek, _, _, _, RestaurantLocation, _, Dishes).

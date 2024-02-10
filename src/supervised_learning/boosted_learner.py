@@ -144,10 +144,12 @@ class BoostedRegressor:
                       'subsample': 0.8}
             self.initialize_model(params)
 
+
         if self.cross_validation:
             k_values = [3, 5, 10, 20]
             self.tune_k_folds(k_values)
             self.cross_validate(params=self.model.get_xgb_params())
+            self.train_model()
         else:
             self.train_model()
             self.evaluate_model()

@@ -1,3 +1,5 @@
+import numpy as np
+import torch
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
 import pandas as pd
@@ -90,6 +92,8 @@ def trova_ristorante():
     # dataframe con nome ristorante e location
     restaurant_locations = KB.get_restaurant_location_by_cuisine(str(cuisine_type)).drop_duplicates()
 
+    preprocessor = load('supervised_learning/output/models/preprocessor.joblib')
+
     linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
 
@@ -113,9 +117,12 @@ def trova_ristorante():
         lat = str(restaurant_location_tuple[0])
         lon = str(restaurant_location_tuple[1])
 
-        # inserire box per weekday o retrive da solo
+
         new_data = pd.DataFrame([(restaurant['restaurant_name'], weekday, dish, lat, lon) for dish in dishes],
                                 columns=['restaurant_name', 'day_of_the_week', 'dish_name', 'latitude', 'longitude'])
+
+        new_data_processed = preprocessor.transform(new_data)
+        new_data_tensor = torch.tensor(new_data_processed.todense().astype(np.float32))
 
         expected_preparation_time_list = []
         if regression_mode == 'linearRegressor':
@@ -131,11 +138,11 @@ def trova_ristorante():
         elif regression_mode == 'lassoCV':
             expected_preparation_time_list = lasso_regressor_with_cv.predict(new_data)
         elif regression_mode == 'neuralNetwork':
-            expected_preparation_time_list = neural_regressor.predict(new_data)
+            expected_preparation_time_list = neural_regressor(new_data_tensor).detach().numpy().flatten()
         elif regression_mode == 'boostedRegressor':
-            expected_preparation_time_list = boosted_regressor.predict(new_data)
+            expected_preparation_time_list = boosted_regressor.predict(new_data_processed)
         elif regression_mode == 'boostedRegressorCV':
-            expected_preparation_time_list = boosted_regressor_with_cv.predict(new_data)
+            expected_preparation_time_list = boosted_regressor_with_cv.predict(new_data_processed)
 
         total_expected_prep_time = 0
         for value in expected_preparation_time_list:

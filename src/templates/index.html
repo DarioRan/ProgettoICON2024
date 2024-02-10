@@ -200,6 +200,8 @@
         <p id="PreparationTime" style="font-size: 19px;" align="left"></p>
         <p id="DeliveryTime" style="font-size: 19px;" align="left"></p>
         <div id="pathMap" class="custom-height" style="width: 100%; margin-top: 20px; margin-bottom: 20px;"></div>
+        <p id="assignedDriverID" style="font-size: 24px;" align="left"></p>
+        <p id="assignedDriverDistance" style="font-size: 19px;" align="left"></p>
 
     </div>
     </div>
@@ -336,6 +338,10 @@
                     document.getElementById("restaurantName").textContent   = "Ristorante:          " + data.nome_ristorante;
                     document.getElementById("PreparationTime").textContent  = "Tempo di preparazione: " + data.tempo_preparazione + " minuti";
                     document.getElementById("DeliveryTime").textContent     = "Tempo di consegna    : " + data.tempo_consegna + " minuti";
+                    document.getElementById("assignedDriverID").textContent = "ID Driver assegnato: " + data.driver_id;
+                    document.getElementById("assignedDriverDistance").textContent = "Distanza dal ristorante del driver: " + data.driver_distance + " km";
+                    document.getElementById("assignedDriverID").style.fontSize = "18px";
+                    document.getElementById("assignedDriverDistance").style.fontSize = "18px";
                     document.getElementById("restaurantName").style.fontSize = "18px";
                     document.getElementById("PreparationTime").style.fontSize = "18px";
                     document.getElementById("DeliveryTime").style.fontSize = "18px";
@@ -352,6 +358,10 @@
                     document.getElementById("restaurantName").textContent   = "Ristorante:          " + data.nome_ristorante;
                     document.getElementById("PreparationTime").textContent  = "Tempo di preparazione: " + data.tempo_preparazione + " minuti";
                     document.getElementById("DeliveryTime").textContent     = "Tempo di consegna    : " + data.tempo_consegna + " minuti";
+                    document.getElementById("assignedDriverID").textContent = "ID Driver assegnato: " + data.driver_id;
+                    document.getElementById("assignedDriverDistance").textContent = "Distanza dal ristorante del driver: " + data.driver_distance + " km";
+                    document.getElementById("assignedDriverID").style.fontSize = "18px";
+                    document.getElementById("assignedDriverDistance").style.fontSize = "18px";
                     document.getElementById("message").style.display = "none";
                     document.getElementById("message2").style.display = "none";
                     document.getElementById("restaurantName").style.fontSize = "24px";

@@ -3,6 +3,8 @@ import torch
 from flask import Flask, render_template, request, jsonify
 import networkx as nx
 import pandas as pd
+
+from src.csp.csp_class import DriverAssignmentProblem
 from src.find_path.utils import calculate_distance, find_path_BB, generate_map, calculate_delivery_time
 from joblib import load
 from KB.KB import KB
@@ -96,6 +98,9 @@ def trova_ristorante():
         weekday = 'Weekend'
 
     waiting_time = data.get('waiting_time')
+
+    #fai con kb
+    drivers_data = pd.read_csv('../dataset/drivers.csv')
 
     # dataframe con nome ristorante e location
     restaurant_locations = KB.get_restaurant_location_by_cuisine(str(cuisine_type)).drop_duplicates()
@@ -207,11 +212,24 @@ def trova_ristorante():
 
     restaurant_name = temp_list2[0][0]
     restaurant_location_str = temp_list2[0][1]
+    restaurant_location_tuple = tuple(map(float, restaurant_location_str.strip('()').split(',')))
 
-    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4], waiting_time)
+    assignment_problem = DriverAssignmentProblem(drivers_data, restaurant_location_tuple)
+    assignment_problem.create_problem()
+    assignment_problem.solve_problem()
+    assigned_driver_details = assignment_problem.get_assigned_driver_details()
+
+    driver_profile = {}
+    if assigned_driver_details['status'] == 'Optimal':
+        driver_profile["id"] = assigned_driver_details["driver_id"]
+        driver_profile["distance"] = round(float(assigned_driver_details["distance"]) * 111)
+    else:
+        driver_profile = None
+
+    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4], waiting_time, driver_profile)
 
 
-def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time, waiting_time):
+def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time, waiting_time, driver_profile):
 
     nome_ristorante = restaurant_name
     lat_lon_string = restaurant_location.strip('()').split(', ')
@@ -220,10 +238,18 @@ def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, prep
     tempo_preparazione = str(round(preparation_time/60))
     tempo_consegna = str(round(delivery_time/60))
     if round(preparation_time/60) + round(delivery_time/60) <= int(waiting_time):
-        return jsonify({'nome_ristorante': nome_ristorante,
-                        'posizione_ristorante': posizione_ristorante,
-                        'tempo_preparazione': tempo_preparazione,
-                        'tempo_consegna': tempo_consegna})
+        if driver_profile:
+            return jsonify({'nome_ristorante': nome_ristorante,
+                            'posizione_ristorante': posizione_ristorante,
+                            'tempo_preparazione': tempo_preparazione,
+                            'tempo_consegna': tempo_consegna,
+                            'driver_id': driver_profile['id'],
+                            'driver_distance': driver_profile['distance']
+                            })
+        else:
+            message = f'Non ci sono driver in grado di effettuare la consegna in {waiting_time} minuti'
+            return jsonify({'message': message, 'nome_ristorante': nome_ristorante,
+                            'tempo_preparazione': tempo_preparazione, 'tempo_consegna': tempo_consegna})
     else:
         message = f'Non ci sono ristoranti in grado di effettuare la consegna in {waiting_time} minuti'
         return jsonify({'message': message, 'nome_ristorante': nome_ristorante,

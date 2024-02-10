@@ -19,7 +19,7 @@ def format_dishes(object_string):
 
 class KB:
     def __init__(self):
-        kb_file_path = str(Path(__file__).parent / 'knowledge_base.pl').replace("\\", "/")
+        kb_file_path = str(Path(__file__).parent / 'knowledge_base_orders.pl').replace("\\", "/")
         self.prolog = Prolog()
         self.prolog.consult(kb_file_path)
 
@@ -55,5 +55,20 @@ class KB:
 
     def get_dishes_info(self):
         dishes = self.prolog.query("get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes)")
-        dishes_list = [d['Dishes'] for d in dishes]
-        return dishes_list[0]
+        restaurants_data = []
+
+        for result in dishes:
+            restaurant_name = result['RestaurantName']
+            restaurant_location = result['RestaurantLocation']
+            restaurant_location = restaurant_location.replace(',(', '(')
+            day_of_the_week = result['DayOfWeek']
+
+            dish_name = result['Dishes']
+            dishes_for_order = format_dishes(str(dish_name))
+            for dish in dishes_for_order:
+                restaurants_data.append({'restaurant_name': restaurant_name, 'restaurant_location': restaurant_location,
+                                         'day_of_the_week': day_of_the_week, 'dish_name': dish['dish_name'],
+                                         'preparation_time': dish['preparation_time']})
+
+        df = pd.DataFrame(restaurants_data)
+        return df

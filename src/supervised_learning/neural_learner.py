@@ -170,7 +170,6 @@ class NeuralRegressor:
         return params_count
 
 
-
     def predict(self, new_data):
         # Preprocess the new data
         new_data = self.preprocessor.transform(new_data)
@@ -181,7 +180,6 @@ class NeuralRegressor:
         self.model.eval()  # Set the model to evaluation mode
         with torch.no_grad():  # Disable gradient calculation
             predictions = self.model(new_data_tensor)
-
         return predictions
 
     def plot_hyperparameter_tuning_results(self, loss_by_hyperparam, loss_by_combination):
@@ -261,6 +259,7 @@ class NeuralRegressor:
             print(f'Modeel saved in output/models/neural_regressor_cv.joblib')
         else:
             dump(self.model, 'output/models/neural_regressor.joblib')
+            dump(self.preprocessor, 'output/models/preprocessor.joblib')
             print(f'Modeel saved in output/models/neural_regressor.joblib')
 
     def initialize(self):

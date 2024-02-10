@@ -12,7 +12,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 class LinearRegressor:
-    def __init__(self, df, cross_validation=False, random_state=42, test_size=0.2, k=5, categorical_features=None, numerical_features=None):
+    def __init__(self, df, cross_validation=False, engineered_feature=False, random_state=42, test_size=0.2, k=5, categorical_features=None, numerical_features=None):
         self.dishes_df = df
         if numerical_features is None:
             numerical_features = ['latitude', 'longitude']
@@ -25,6 +25,7 @@ class LinearRegressor:
         self.numerical_features = numerical_features
         self.k = k
         self.cross_validation = cross_validation
+        self.engineered_feature = engineered_feature
         self.initialize()
 
     def load_data(self):
@@ -114,10 +115,14 @@ class LinearRegressor:
     def save_model(self):
         if self.cross_validation:
             dump(self.model, 'output/models/linear_regressor_cv.joblib')
-            print(f'Modeel saved in output/models/linear_regressor_cv.joblib')
+            print(f'Model saved in output/models/linear_regressor_cv.joblib')
         else:
-            dump(self.model, 'output/models/linear_regressor.joblib')
-            print(f'Modeel saved in output/models/linear_regressor.joblib')
+            if self.engineered_feature:
+                dump(self.model, 'output/models/linear_regressor_engineered.joblib')
+                print(f'Model saved in output/models/linear_regressor_engineered.joblib')
+            else:
+                dump(self.model, 'output/models/linear_regressor.joblib')
+                print(f'Model saved in output/models/linear_regressor.joblib')
 
 
     def initialize(self):

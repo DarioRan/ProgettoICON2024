@@ -9,10 +9,14 @@ from KB.KB import KB
 import datetime
 from src.belief_network.utils.utils import predict_road_closure_probability
 
+
 app = Flask(__name__)
 
 # Carica il grafo all'avvio dell'applicazione
 G = nx.read_graphml('../dataset/newyork_final.graphml')
+
+# Carica dataset incidenti
+accidents_df = pd.read_csv('../dataset/accidents_ny.csv')
 
 KB = KB()
 
@@ -174,7 +178,7 @@ def trova_ristorante():
                            tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec))
 
         #calcola probabilità trovare un blocco stradale
-        prob_delayed=predict_road_closure_probability(G, '18:00', shortest_path)
+        #prob_delayed=predict_road_closure_probability(accidents_df,G, '18:00', shortest_path)
 
     temp_list2.sort(key=lambda x: x[2])
 

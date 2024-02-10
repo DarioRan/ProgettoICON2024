@@ -10,9 +10,9 @@ from pgmpy.inference import VariableElimination
 
 class BeliefNetwork:
 
-    def __init__(self):
+    def __init__(self, df):
         self.model = None
-        self.data = pd.read_csv('../../dataset/accidents_ny.csv')
+        self.data = df
         # elimina le righe la cui strada compare meno di 10 volte
         self.data = self.data.groupby('Street').filter(lambda x: len(x) > 10)
 
@@ -36,9 +36,7 @@ class BeliefNetwork:
 
 
 
-#test
-BN = BeliefNetwork()
-BN.train_model()
-print(BN.get_road_closure_probability('17:00:00', 'George Washington Bridge'))
+
+
 
 

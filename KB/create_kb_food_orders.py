@@ -17,20 +17,17 @@ def writeOrdersInfo(dataSet):
     with open(file_path, "w", encoding="utf-8"):  # Sovrascrivi il file (svuotalo)
         write_fact_to_file(":- encoding(utf8)", file_path)
         for index, row in dataSet.iterrows():
-            order_id = row['order_id']
-            customer_id = row['customer_id']
             restaurant_name = row['restaurant_name']
             cuisine_type = row['cuisine_type']  # Non formattare come float
             cost_of_the_order = row['cost_of_the_order']
             day_of_the_week = row['day_of_the_week']  # Non formattare come float
-            rating = row['rating']
             food_preparation_time = row['food_preparation_time']
             delivery_time = row['delivery_time']
             restaurant_location = row['restaurant_location']  # Non formattare come float
             customer_location = row['customer_location']
             dishes = row['dishes']
-            prolog_clause = f"order({order_id},{customer_id},{restaurant_name},'{cuisine_type}',{cost_of_the_order},'{day_of_the_week}'," \
-                            f"{rating},{food_preparation_time},{delivery_time},{restaurant_location},'{customer_location}', '{dishes}')"
+            prolog_clause = f"order({restaurant_name},'{cuisine_type}',{cost_of_the_order},'{day_of_the_week}'," \
+                            f"{food_preparation_time},{delivery_time},{restaurant_location},'{customer_location}', '{dishes}')"
             write_fact_to_file(prolog_clause, file_path)
 
 
@@ -83,14 +80,14 @@ def add_prolog_queries(output_filename):
     with open(output_filename, 'a') as f:
         f.write("\n% Queries\n")
         f.write("restaurants_by_cuisine(CuisineType, RestaurantName) :- "
-                "order(_, _, RestaurantName, CuisineType, _, _, _, _, _, _, _, _).\n")
+                "order(RestaurantName, CuisineType, _, _, _, _, _, _, _).\n")
         f.write("dishes_by_cuisine(CuisineType, Dishes) :- dish(CuisineType, Dishes).\n")
         f.write("all_cuisine_types(CuisineTypes) :- setof(CuisineType, "
                 "Dish^dish(CuisineType, Dish), CuisineTypes).\n")
         f.write("restaurant_loc_by_cuisine(CuisineType, RestaurantName, RestaurantLocation) :- "
-                "order(_, _, RestaurantName, CuisineType, _, _, _, _, _, RestaurantLocation, _, _).\n")
+                "order(RestaurantName, CuisineType, _, _, _, _, RestaurantLocation, _, _).\n")
         f.write("get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes) :- "
-                "order(_, _, RestaurantName, _, _, DayOfWeek, _, _, _, RestaurantLocation, _, Dishes).\n")
+                "order(RestaurantName, _, _, DayOfWeek, _, _, RestaurantLocation, _, Dishes).\n")
 
 
 def fix_orders(file_path):
@@ -99,8 +96,7 @@ def fix_orders(file_path):
         content = file.read()
 
     # Correggi gli ordini
-    corrected_content = content.replace("Not given", "'Not given'")  # Aggiungi le virgolette intorno a 'Not given'
-    corrected_content = corrected_content.replace("[{", "[{")  # Mantieni le parentesi quadre iniziali
+    corrected_content = content.replace("[{", "[{")  # Mantieni le parentesi quadre iniziali
     corrected_content = corrected_content.replace("}]", "}]")  # Mantieni le parentesi quadre finali
     corrected_content = corrected_content.replace("'[{", "[{")  # Mantieni le parentesi quadre iniziali
     corrected_content = corrected_content.replace("}]'", "}]")  # Mantieni le parentesi quadre finali
@@ -111,9 +107,10 @@ def fix_orders(file_path):
         if line.startswith("order("):
             parts = line.split(',')
             # Rimuovi eventuali apici singoli aggiuntivi nel nome del ristorante
-            parts[2] = parts[2].replace("'", "")  # Rimuovi tutti gli apici singoli
+            parts[0] = parts[0].replace("'", "")  # Rimuovi tutti gli apici singoli
             # Assicurati che il nome del ristorante sia racchiuso tra apici singoli
-            parts[2] = f"'{parts[2]}'"
+            parts[0] = f"'{parts[0]}'"
+            parts[0] = parts[0].replace("'order(", "order('")
             lines[i] = ','.join(parts)
 
     corrected_content = '\n'.join(lines)

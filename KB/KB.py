@@ -19,28 +19,31 @@ def format_dishes(object_string):
 
 class KB:
     def __init__(self):
-        kb_file_path = str(Path(__file__).parent / 'knowledge_base_orders.pl').replace("\\", "/")
-        self.prolog = Prolog()
-        self.prolog.consult(kb_file_path)
+        kb_file_path_orders = str(Path(__file__).parent / 'knowledge_base_orders.pl').replace("\\", "/")
+        self.prolog_orders = Prolog()
+        self.prolog_orders.consult(kb_file_path_orders)
+        kb_file_path_graph = str(Path(__file__).parent / 'knowledge_base_graph.pl').replace("\\", "/")
+        self.prolog_graph = Prolog()
+        self.prolog_graph.consult(kb_file_path_graph)
 
     def get_restaurants_by_cuisine(self, cuisine_type):
-        list_query = list(self.prolog.query(
+        list_query = list(self.prolog_orders.query(
             f"findall(RestaurantName, restaurants_by_cuisine('{cuisine_type}', RestaurantName), Restaurants)"))
         restaurants = list_query[0]['Restaurants'] if list_query else []
         return restaurants
 
     def get_dishes_by_cuisine(self, cuisine_type):
-        dishes = self.prolog.query(f"findall(Dish, dishes_by_cuisine('{cuisine_type}', Dish), Dishes)")
+        dishes = self.prolog_orders.query(f"findall(Dish, dishes_by_cuisine('{cuisine_type}', Dish), Dishes)")
         dishes_list = [d['Dishes'] for d in dishes]
         return dishes_list[0]
 
     def get_all_cuisine_types(self):
-        cuisine_types = list(self.prolog.query("setof(CuisineType, Dish^dish(CuisineType, Dish), CuisineTypes)"))
+        cuisine_types = list(self.prolog_orders.query("setof(CuisineType, Dish^dish(CuisineType, Dish), CuisineTypes)"))
         cuisine_types_list = cuisine_types[0]['CuisineTypes'] if cuisine_types else []
         return cuisine_types_list
 
     def get_restaurant_location_by_cuisine(self, cuisine_type):
-        list_query = self.prolog.query(
+        list_query = self.prolog_orders.query(
             f"restaurant_loc_by_cuisine('{cuisine_type}', RestaurantName, RestaurantLocation)")
         restaurants_data = []
 
@@ -54,7 +57,7 @@ class KB:
         return df
 
     def get_dishes_info(self):
-        dishes = self.prolog.query("get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes)")
+        dishes = self.prolog_orders.query("get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes)")
         restaurants_data = []
 
         for result in dishes:
@@ -72,3 +75,52 @@ class KB:
 
         df = pd.DataFrame(restaurants_data)
         return df
+
+    def get_all_nodes(self):
+        nodes = []
+        result = list(self.prolog_graph.query("get_all_nodes(Nodes)"))
+        if result:
+            for node_dict in result:  # Stampiamo solo i primi 10 dizionari
+                nodes.append(node_dict['Nodes'])
+            return nodes
+        else:
+            print("Nessun nodo trovato.")
+            return None
+
+    def get_street_name(self, source, target):
+        query = "get_street_name('{}', '{}', StreetName)".format(source, target)
+        result = list(self.prolog_graph.query(query))
+        if result:
+            return result[0]['StreetName']
+        else:
+            print("Nessun arco trovato tra i nodi {} e {}.".format(source, target))
+            return None
+
+    def get_edge_length(self, source, target):
+        query = "get_edge_length('{}', '{}', Length)".format(source, target)
+        result = list(self.prolog_graph.query(query))
+        if result:
+            return result[0]['Length']
+        else:
+            print("Nessun arco trovato tra i nodi {} e {}.".format(source, target))
+            return None
+
+    def get_edge_flowSpeed(self, source, target):
+        query = "get_edge_flowSpeed('{}', '{}', FlowSpeed)".format(source, target)
+        result = list(self.prolog_graph.query(query))
+        if result:
+            return result[0]['FlowSpeed']
+        else:
+            print("Nessun arco trovato tra i nodi {} e {}.".format(source, target))
+            return None
+
+    def get_neighbors(self, source):
+        query = f"get_neighbors('{source}',Neighbors)"
+        result = list(self.prolog_graph.query(query))
+        return result[0]['Neighbors']
+
+
+
+
+
+

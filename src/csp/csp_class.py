@@ -1,6 +1,10 @@
-import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from shapely.geometry import Point
 import pulp
 import math
+from matplotlib import pyplot as plt
+
 
 class DriverAssignmentProblem:
     def __init__(self, drivers_data, order_location):
@@ -92,18 +96,25 @@ class DriverAssignmentProblem:
         else:
             return {'status': "no_assignments", 'error': 'No driver could be assigned.'}
 
-"""# Uso della classe
-drivers_data = '../../dataset/drivers.csv'
-order_location = (40.75, -73.95)
+    def plot_assignments(self):
+        """
+        Plots the drivers' locations and the order location on a map.
+        The assigned driver's location is highlighted.
+        """
+        gdf = gpd.GeoDataFrame(self.drivers_df,
+                               geometry=gpd.points_from_xy(self.drivers_df.Longitude, self.drivers_df.Latitude))
 
+        order_gdf = gpd.GeoDataFrame(
+            [{'Order_ID': 'Order', 'geometry': Point(self.order_location[1], self.order_location[0])}])
 
-assignment_problem = DriverAssignmentProblem(drivers_data, order_location)
-assignment_problem.create_problem()
+        fig, ax = plt.subplots(figsize=(6, 6))
+        gdf.plot(ax=ax, color='blue', markersize=5, label='Driver')
+        order_gdf.plot(ax=ax, color='red', markersize=100, label='Order')
 
-assignment_problem.solve_problem()
+        assigned_details = self.get_assigned_driver_details()
+        if assigned_details['status'] == 'Optimal' and 'driver_id' in assigned_details:
+            assigned_driver = gdf[gdf['Driver_ID'] == assigned_details['driver_id']]
+            assigned_driver.plot(ax=ax, color='green', markersize=100, label='Assigned Driver')
 
-
-assigned_driver_details = assignment_problem.get_assigned_driver_details()
-
-print(assigned_driver_details)
-"""
+        plt.legend()
+        plt.savefig('driver_assignments.png')

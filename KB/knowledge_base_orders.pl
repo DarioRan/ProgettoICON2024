@@ -2232,7 +2232,6 @@ order(38599,7914,'Hanoi House','Vietnamese',18.31,'Weekday',3,30,30,(40.7269632,
 order(11190,5658,'Madame Vo','Vietnamese',22.01,'Weekday',4,29,25,(40.7293452, -73.9860649),'(40.776131794447195, -73.96821593791996)', [{'dish_name': 'Gỏi cuốn', 'preparation_time': 17}, {'dish_name': 'Cà phê sữa đá', 'preparation_time': 12}]).
 order(66696,7639,'Nha Trang One','Vietnamese',47.84,'Weekend',4,29,23,(40.7167899, -73.9996711),'(40.68642539406772, -73.97738905887526)', [{'dish_name': 'Cà phê sữa đá', 'preparation_time': 14}, {'dish_name': 'Gỏi cuốn', 'preparation_time': 15}]).
 order(42694,4815,'V-Nam Cafe','Vietnamese',49.52,'Weekend',4,33,35,(40.7235492, -73.9880373),'(40.70183034227969, -73.90306102983193)', [{'dish_name': 'Bun cha', 'preparation_time': 15}, {'dish_name': 'Bun cha', 'preparation_time': 18}]).
-
 dish('Korean', 'Bibimbap').
 dish('Korean', 'Kimchi').
 dish('Korean', 'Bulgogi').
@@ -2243,7 +2242,6 @@ dish('Korean', 'Tteokbokki').
 dish('Korean', 'Gimbap').
 dish('Korean', 'Sundubu Jjigae').
 dish('Korean', 'Galbi').
-
 dish('Mexican', 'Carnitas').
 dish('Mexican', 'Tacos').
 dish('Mexican', 'Enchiladas').
@@ -2254,7 +2252,6 @@ dish('Mexican', 'Chiles en Nogada').
 dish('Mexican', 'Guacamole').
 dish('Mexican', 'Quesadillas').
 dish('Mexican', 'Salsa Verde').
-
 dish('American', 'Hot Dogs').
 dish('American', 'French Fries').
 dish('American', 'Chicken Tenders').
@@ -2265,7 +2262,6 @@ dish('American', 'Tater Tots').
 dish('American', 'Apple Pie').
 dish('American', 'Barbecue Ribs').
 dish('American', 'Reuben Sandwich').
-
 dish('Indian', 'Biryani').
 dish('Indian', 'Butter Chicken').
 dish('Indian', 'Chaat').
@@ -2276,18 +2272,16 @@ dish('Indian', 'Dosa').
 dish('Indian', 'Samosa').
 dish('Indian', 'Tandoori Chicken').
 dish('Indian', 'Rogan Josh').
-
 dish('Italian', 'Pasta Carbonara').
 dish('Italian', 'Pizza').
 dish('Italian', 'Spaghetti con Salsa di Pomodoro').
 dish('Italian', 'Pasta alla Gricia').
-dish('Italian', 'Rigatoni all\'Amatriciana').
+dish('Italian', 'Rigatoni all Amatriciana').
 dish('Italian', 'Ossobuco').
 dish('Italian', 'Arancini').
 dish('Italian', 'Ragù Bolognese').
 dish('Italian', 'Risotto').
 dish('Italian', 'Lasagna').
-
 dish('Mediterranean', 'Greek Salad').
 dish('Mediterranean', 'Armenian Losh Kebab').
 dish('Mediterranean', 'Mediterranean White Bean Soup').
@@ -2298,7 +2292,6 @@ dish('Mediterranean', 'Mediterranean Baked Cod Recipe').
 dish('Mediterranean', 'Mediterranean Grilled Chicken + Dill Greek Yogurt Sauce').
 dish('Mediterranean', 'Mediterranean Pasta Salad').
 dish('Mediterranean', 'Mediterranean Quinoa Salad').
-
 dish('Chinese', 'Peking Roasted Duck').
 dish('Chinese', 'Kung Pao Chicken').
 dish('Chinese', 'Sweet and Sour Pork').
@@ -2309,7 +2302,6 @@ dish('Chinese', 'Yangzhou Fried Rice').
 dish('Chinese', 'Fish-Flavored Shredded Pork').
 dish('Chinese', 'Sweet and Sour Pork Fillet').
 dish('Chinese', 'Congee').
-
 dish('Japanese', 'Sushi').
 dish('Japanese', 'Tempura').
 dish('Japanese', 'Yakitori').
@@ -2320,7 +2312,6 @@ dish('Japanese', 'Ichiju-ju').
 dish('Japanese', 'Sashimi').
 dish('Japanese', 'Nigiri').
 dish('Japanese', 'Miso Soup').
-
 dish('Middle Eastern', 'Jewelled rice').
 dish('Middle Eastern', 'Cauliflower and chickpea tagine').
 dish('Middle Eastern', 'Beef Dolmas with Apricots and Tamarind').
@@ -2331,7 +2322,6 @@ dish('Middle Eastern', 'Hummus').
 dish('Middle Eastern', 'Baba Ghannouj').
 dish('Middle Eastern', 'Falafel').
 dish('Middle Eastern', 'Shawarma').
-
 dish('Thai', 'Som Tum').
 dish('Thai', 'Pad Thai').
 dish('Thai', 'Tom Yum Goong').
@@ -2342,7 +2332,6 @@ dish('Thai', 'Massaman Curry').
 dish('Thai', 'Green Curry').
 dish('Thai', 'Thai Fried Rice').
 dish('Thai', 'Nam Tok Mu').
-
 dish('Spanish', 'Paella').
 dish('Spanish', 'Tortilla de Patatas').
 dish('Spanish', 'Patatas Bravas').
@@ -2353,7 +2342,6 @@ dish('Spanish', 'Pisto').
 dish('Spanish', 'Fabada Asturiana').
 dish('Spanish', 'Pulpo a la Gallega').
 dish('Spanish', 'Tarta de Santiago').
-
 dish('Southern', 'Buttermilk Biscuits').
 dish('Southern', 'Baked Macaroni Cheese').
 dish('Southern', 'Chicken and Dumplings').
@@ -2364,7 +2352,6 @@ dish('Southern', 'Gumbo').
 dish('Southern', 'Mississippi Mud Pie').
 dish('Southern', 'Red Rice').
 dish('Southern', 'Tomato Cheddar and Bacon Cake').
-
 dish('French', 'Soupe à l’oignon').
 dish('French', 'Coq au vin').
 dish('French', 'Cassoulet').
@@ -2375,7 +2362,6 @@ dish('French', 'Confit de canard').
 dish('French', 'Salade Niçoise').
 dish('French', 'Ratatouille').
 dish('French', 'Tarte Tatin').
-
 dish('Vietnamese', 'Phở').
 dish('Vietnamese', 'Bánh Mì').
 dish('Vietnamese', 'Cơm Tấm').
@@ -2387,20 +2373,9 @@ dish('Vietnamese', 'Chả giò').
 dish('Vietnamese', 'Cà phê sữa đá').
 dish('Vietnamese', 'Bánh xèo').
 
-
 % Queries
-
-restaurants_by_cuisine(CuisineType, RestaurantName) :-
-    order(_, _, RestaurantName, CuisineType, _, _, _, _, _, _, _, _).
-
-dishes_by_cuisine(CuisineType, Dishes) :-
-    dish(CuisineType, Dishes).
-
-all_cuisine_types(CuisineTypes) :-
-    setof(CuisineType, Dish^dish(CuisineType, Dish), CuisineTypes).
-
-restaurant_loc_by_cuisine(CuisineType, RestaurantName, RestaurantLocation) :-
-    order(_, _, RestaurantName, CuisineType, _, _, _, _, _, RestaurantLocation, _, _).
-
-get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes) :-
-    order(_, _, RestaurantName, _, _, DayOfWeek, _, _, _, RestaurantLocation, _, Dishes).
+restaurants_by_cuisine(CuisineType, RestaurantName) :- order(_, _, RestaurantName, CuisineType, _, _, _, _, _, _, _, _).
+dishes_by_cuisine(CuisineType, Dishes) :- dish(CuisineType, Dishes).
+all_cuisine_types(CuisineTypes) :- setof(CuisineType, Dish^dish(CuisineType, Dish), CuisineTypes).
+restaurant_loc_by_cuisine(CuisineType, RestaurantName, RestaurantLocation) :- order(_, _, RestaurantName, CuisineType, _, _, _, _, _, RestaurantLocation, _, _).
+get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes) :- order(_, _, RestaurantName, _, _, DayOfWeek, _, _, _, RestaurantLocation, _, Dishes).

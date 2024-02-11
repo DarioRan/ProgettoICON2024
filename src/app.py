@@ -202,11 +202,17 @@ def trova_ristorante():
 
         tot_delivery_time_seconds = delivery_time_sec + preparation_time_sec
 
+        time = datetime.datetime.now()
+        time = time.replace(second=0, microsecond=0)
+        time = time.replace(minute=30) if time.minute >= 30 else time.replace(minute=0)
+        time = time.strftime('%H:%M')
+        time = str(time)
+
+        road_closure_prob = bn.predict_road_closure_probability(G, time, shortest_path)
+
         temp_list2.append((restaurant[0]['restaurant_name'], restaurant[0]['restaurant_location'],
-                           tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec))
+                           tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec, road_closure_prob))
 
-
-        bn.predict_road_closure_probability(G, '10:00', shortest_path)
 
     temp_list2.sort(key=lambda x: x[2])
 
@@ -226,10 +232,12 @@ def trova_ristorante():
     else:
         driver_profile = None
 
-    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4], waiting_time, driver_profile)
+    print(temp_list2[0][5])
+
+    return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4], waiting_time, driver_profile, temp_list2[0][5])
 
 
-def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time, waiting_time, driver_profile):
+def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, preparation_time, waiting_time, driver_profile, probability):
 
     nome_ristorante = restaurant_name
     lat_lon_string = restaurant_location.strip('()').split(', ')
@@ -244,7 +252,8 @@ def jsonify_restaurant(restaurant_name, restaurant_location, delivery_time, prep
                             'tempo_preparazione': tempo_preparazione,
                             'tempo_consegna': tempo_consegna,
                             'driver_id': driver_profile['id'],
-                            'driver_distance': driver_profile['distance']
+                            'driver_distance': driver_profile['distance'],
+                            'road_closure_probability': probability
                             })
         else:
             message = f'Non ci sono driver in grado di effettuare la consegna in {waiting_time} minuti'

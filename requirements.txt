@@ -12,3 +12,5 @@ geopy==2.4.1
 pgmpy==0.1.24
 git+https://github.com/yuce/pyswip@master#egg=pyswip
 PuLP=2.8.0
+geopandas=0.14.3
+shapely=2.0.2

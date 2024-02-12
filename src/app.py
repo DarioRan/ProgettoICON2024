@@ -84,6 +84,7 @@ def calculate_path():
 @app.route('/find_restaurant', methods=['POST'])
 def trova_ristorante():
 
+    print("\nInizio ricerca ristorante . . .\n")
     global total_expected_prep_time
     data = request.get_json()
     cuisine_type = data.get('cuisine_type')
@@ -112,9 +113,6 @@ def trova_ristorante():
     linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
     linear_regressor_with_cv = load('supervised_learning/output/models/linear_regressor_cv.joblib')
     linear_regressor_with_ing_feature = load('supervised_learning/output/models/linear_regressor_engineered.joblib')
-
-    linear_regressor_with_sgd = load('supervised_learning/output/models/SGDlinear_regressor.joblib')
-    linear_regressor_with_sgd_cv = load('supervised_learning/output/models/SGDlinear_regressor_cv.joblib')
 
     ridge_regressor = load('supervised_learning/output/models/ridge_regressor.joblib')
     ridge_regressor_with_cv = load('supervised_learning/output/models/ridge_regressor_cv.joblib')
@@ -151,10 +149,6 @@ def trova_ristorante():
             expected_preparation_time_list = linear_regressor.predict(new_data)
         if regression_mode == 'linearRegressorCV':
             expected_preparation_time_list = linear_regressor_with_cv.predict(new_data)
-        elif regression_mode == 'LinearRegressorSGD':
-            expected_preparation_time_list = linear_regressor_with_sgd.predict(new_data)
-        elif regression_mode == 'LinearRegressorSGDCV':
-            expected_preparation_time_list = linear_regressor_with_sgd_cv.predict(new_data)
         elif regression_mode == 'ridge':
             expected_preparation_time_list = ridge_regressor.predict(new_data)
         elif regression_mode == 'ridgeCV':
@@ -220,6 +214,7 @@ def trova_ristorante():
     restaurant_location_str = temp_list2[0][1]
     restaurant_location_tuple = tuple(map(float, restaurant_location_str.strip('()').split(',')))
 
+    print("\nInizio ricerca driver\n")
     assignment_problem = DriverAssignmentProblem(drivers_data, restaurant_location_tuple)
     assignment_problem.create_problem()
     assignment_problem.solve_problem()
@@ -231,8 +226,6 @@ def trova_ristorante():
         driver_profile["distance"] = round(float(assigned_driver_details["distance"]) * 111)
     else:
         driver_profile = None
-
-    print(temp_list2[0][5])
 
     return jsonify_restaurant(restaurant_name, restaurant_location_str, temp_list2[0][3], temp_list2[0][4], waiting_time, driver_profile, temp_list2[0][5])
 

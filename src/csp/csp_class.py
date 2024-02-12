@@ -62,7 +62,14 @@ class DriverAssignmentProblem:
         """
        Solves the driver assignment problem using the branch and bound algorithm.
        """
+        no_print = pulp.LpSolverDefault.msg
+        pulp.LpSolverDefault.msg = 0
+
+        # Risolvi il problema
         self.prob.solve()
+
+        # Ripristina le impostazioni di stampa
+        pulp.LpSolverDefault.msg = no_print
 
     def get_assigned_driver_details(self):
         """

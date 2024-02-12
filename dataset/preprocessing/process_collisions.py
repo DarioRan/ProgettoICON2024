@@ -27,6 +27,29 @@ data['Time'] = pd.to_datetime(data['Time'],format='mixed').dt.time
 data['Time'] = data['Time'].apply(lambda x: x.replace(second=0))
 data['Time'] = data['Time'].apply(lambda x: x.replace(minute=30) if x.minute >= 30 else x.replace(minute=0))
 
+#crea un csv dove per ogni mezzora genera lo stato, in maniera casuale, di ogni strada di new york
+#crea un dataset con tutte le strade di new york
+streets = data['Street'].unique()
+time = data['Time'].unique()
+road_closure = data['road_closure'].unique()
+#crea un dataset con tutte le combinazioni di strade e date
+import itertools
+import numpy as np
+import random
+import datetime
+
+#per ogni mezzora e per ogni strada genera un valore casuale che corrsiponde allo stato della strada
+#True = blocco stradale
+#False = strada libera
+#crea un dataset con tutte le combinazioni di strade e date
+combinations = list(itertools.product(streets, time))
+
+#crea un csv con questi dati
+df = pd.DataFrame(combinations, columns=['Street', 'Time'])
+df['road_closure'] = np.random.choice([True, False], size=(len(combinations),), p=[0.2, 0.8])
+df.to_csv('../road_closure.csv', index=False)
+
+
 
 
 

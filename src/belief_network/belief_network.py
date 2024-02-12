@@ -8,6 +8,7 @@ from pgmpy.estimators import MaximumLikelihoodEstimator
 from pgmpy.inference import VariableElimination
 
 from src.find_path.utils import find_street_names
+from fuzzywuzzy import fuzz
 
 
 
@@ -26,6 +27,7 @@ class BeliefNetwork:
         self.model = BayesianNetwork([('Time', 'road_closure'), ('Street', 'road_closure')])
         self.model.fit(self.data, estimator=MaximumLikelihoodEstimator)
 
+    """
     def get_road_closure_probability(self,x_time, street):
         # se la strada non è presente nel dataset, ritorna errore
         if street not in self.data['Street'].values:
@@ -38,15 +40,40 @@ class BeliefNetwork:
         print(self.data.columns)
         q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': street})
         return q
+    """
+    def get_road_closure_probability(self, x_time, street):
+        x_time = str(x_time)+':00'
+        # Controllo della similarità del 90% con i nomi delle strade nel dataset
+        similar_streets = [street_name for street_name in self.data['Street'].unique() if fuzz.ratio(street, street_name) >= 80]
+        if len(similar_streets)==0 or similar_streets is None:
+            print("ZERO")
+            return 0
+
+        try:
+            # crea l'oggetto per l'inferenza
+            inference = VariableElimination(self.model)
+
+            # Calcola la probabilità di blocco stradale per la strada simile trovata
+            q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': similar_streets[0]})
+            print(q)
+            return q.get('road_closure').values[1]
+        except KeyError:
+            # Se l'ora specificata non è presente per quella strada, ritorna probabilità 0
+            #x_time alla mezzora successiva
+            x_time = str(int(x_time.split(':')[0])+1)+':00'
+            q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': similar_streets[0]})
+            print(q['road_closure'])
+            return q.get('road_closure').values[1]
 
     def predict_road_closure_probability(self, G, x_time, path):
         prob = 1
         street_names = find_street_names(G, path)
+        road_prob_cloasures = []
         for i in range(len(street_names) - 1):
-            # dovrebbe essere il max
-            if street_names[i] in self.data['Street'].values:
-                print(street_names[i])
-                self.get_road_closure_probability('19:00', street_names[i])
+            print(street_names[i])
+            road_prob_cloasures.append(self.get_road_closure_probability(str(x_time), street_names[i]))
+
+        return road_prob_cloasures.sort()[0]
 
 
 # test class

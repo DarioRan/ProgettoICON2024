@@ -18,7 +18,7 @@ app = Flask(__name__)
 G = nx.read_graphml('../dataset/newyork_final.graphml')
 
 # Carica dataset incidenti
-accidents_df = pd.read_csv('../dataset/accidents_ny.csv')
+accidents_df = pd.read_csv('../dataset/road_closure.csv')
 
 KB = KB()
 
@@ -203,6 +203,7 @@ def trova_ristorante():
         time = str(time)
 
         road_closure_prob = bn.predict_road_closure_probability(G, time, shortest_path)
+        print(road_closure_prob)
 
         temp_list2.append((restaurant[0]['restaurant_name'], restaurant[0]['restaurant_location'],
                            tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec, road_closure_prob))

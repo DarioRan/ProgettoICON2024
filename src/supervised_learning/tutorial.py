@@ -11,6 +11,7 @@ from src.supervised_learning.SGDLearner import SGDLeaner
 
 df = pd.read_csv('../../dataset/dishes_df.csv')
 
+
 boosted_regressor = BoostedRegressor(df, False, False)
 boosted_regressor.save_model()
 boosted_regressor_with_cv = BoostedRegressor(df, True, False)
@@ -21,8 +22,8 @@ linear_regressor_with_cv = LinearRegressor(df, True)
 linear_regressor.save_model()
 linear_regressor_with_cv.save_model()
 
-sgd_regressor = SGDLeaner(df)
-sgd_regressor_with_cv = SGDLeaner(df, True  , random_state=42)
+#sgd_regressor = SGDLeaner(df)
+#sgd_regressor_with_cv = SGDLeaner(df, True  , random_state=42)
 
 ridge_regressor = RidgeRegressor(df, alpha=0.1)
 ridge_regressor.save_model()
@@ -34,6 +35,7 @@ lasso_regressor.save_model()
 lasso_regressor_with_cv = LassoRegressor(df, True, alpha=0.1)
 lasso_regressor_with_cv.save_model()
 #implementare nl cv
+
 neural_regressor = NeuralRegressor(df, False, False)
 neural_regressor.save_model()
 
@@ -48,11 +50,10 @@ plt.ylabel('BIC')
 plt.title('BIC of Different Regressors')
 plt.savefig('output/bic_comparison.png')
 
-print(linear_regressor.rmse)
-print(linear_regressor_with_cv.rmse)
+
 plt.figure(figsize=(18, 14))
-model_names = ['Linear Regressor', 'Linear Regressor with CV', 'Ridge Regressor', 'Ridge Regressor with CV', 'Lasso Regressor', 'Lasso Regressor with CV', 'Neural Regressor', 'Boosted Regressor', 'Boosted Regressor with CV', 'SGD Regressor with CV']
-rmse_values = [linear_regressor.rmse, linear_regressor_with_cv.rmse, ridge_regressor.rmse, ridge_regressor_with_cv.rmse, lasso_regressor.rmse, lasso_regressor_with_cv.rmse, neural_regressor.rmse, boosted_regressor.rmse, boosted_regressor_with_cv.rmse, sgd_regressor_with_cv.rmse]
+model_names = ['Linear Regressor', 'Ridge Regressor', 'Lasso Regressor', 'Neural Regressor', 'Boosted Regressor']
+rmse_values = [linear_regressor.rmse, ridge_regressor.rmse,  lasso_regressor.rmse, neural_regressor.rmse, boosted_regressor.rmse]
 rmse_values.sort()
 plt.bar(model_names, rmse_values, color=['blue', 'orange'])
 plt.ylabel('RMSE')

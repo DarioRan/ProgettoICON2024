@@ -205,6 +205,8 @@ class LassoRegressor:
         self.plot_alpha_loss(alphas, mean_scores)
 
         best_estimator = grid_search.best_estimator_
+        cv_data= pd.DataFrame(grid_search.cv_results_)
+        plot_data = cv_data[['param_regressor__alpha', 'mean_test_score']]
         self.model = best_estimator
         return best_params
 
@@ -261,6 +263,7 @@ class LassoRegressor:
         """
         y_pred = self.model.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
+
         self.rmse = np.sqrt(mse)
         self.bic = self.calculate_bic(mse)
         print(f'Lasso RMSE: {self.rmse}')
@@ -283,16 +286,14 @@ class LassoRegressor:
         self.train_test_split()
         self.initialize_model()
         param_grid = {
-            'regressor__alpha': [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.0015, 0.002, 0.01, 0.05, 0.1, 0.2, 0.3,
-                                 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
-                                 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
+            'regressor__alpha': [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.0015, 0.002, 0.01]
         }
-        self.tune_hyperparameters(param_grid)
         self.train_model()
 
         if self.cross_validation:
             k_values = [3, 5, 10, 20]
             self.tune_k_folds(k_values)
+            self.tune_hyperparameters(param_grid)
             self.cross_validate()
         else:
             self.evaluate_model()

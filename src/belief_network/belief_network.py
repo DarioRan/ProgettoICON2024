@@ -46,7 +46,7 @@ class BeliefNetwork:
             # dovrebbe essere il max
             if street_names[i] in self.data['Street'].values:
                 print(street_names[i])
-                self.get_road_closure_probability(x_time, 'street1')
+                self.get_road_closure_probability('19:00', street_names[i])
 
 
 # test class

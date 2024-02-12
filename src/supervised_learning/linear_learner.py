@@ -131,6 +131,14 @@ class LinearRegressor:
         rmse_scores = np.sqrt(-scores)
         self.rmse = rmse_scores.mean()
         print(f'Linear Cross-validation RMSE: {rmse_scores.mean()} (± {rmse_scores.std()})')
+        #output image with training and validation error at evry iteration
+        plt.figure(figsize=(8, 6))
+        plt.plot(rmse_scores, marker='o', linestyle='-', color='b')
+        plt.xlabel('Fold')
+        plt.ylabel('Cross-validation RMSE')
+        plt.title('Linear RMSE for Each Fold in Cross-validation')
+        plt.grid(True)
+        plt.savefig('output/linear_cv_rmse.png')
         return rmse_scores
 
     def tune_k_folds(self, k_values):
@@ -202,6 +210,8 @@ class LinearRegressor:
         bic = n * np.log(rss / n) + k * np.log(n)
         return bic
 
+
+
     def evaluate_model(self):
         """
         Evaluates the model's performance on the test set. This method predicts the target variable using the test set
@@ -216,6 +226,8 @@ class LinearRegressor:
         self.bic = self.calculate_bic(mse)
         print(f'Linear RMSE: {self.rmse}')
         print(f'Linear BIC: {self.bic}')
+
+
 
     def save_model(self):
         """

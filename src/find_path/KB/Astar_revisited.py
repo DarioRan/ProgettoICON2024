@@ -1,22 +1,34 @@
 import geopy.distance
+import heapq
 
-def euclidean_distance(graph, node_1, node_2):
+def find_coords_by_id(nodes, node_id):
+    for node in nodes:
+        if node[0] == node_id:
+            return (node[1], node[2])
+    return None
+
+
+def euclidean_distance(nodes, node_1, node_2):
     # Calcola la distanza euclidea tra due nodi nel piano
-    coords_1 = graph.nodes[node_1]['y'], graph.nodes[node_1]['x']
-    coords_2 = graph.nodes[node_2]['y'], graph.nodes[node_2]['x']
+    coords_1 = find_coords_by_id(nodes, node_1)
+    coords_2 = find_coords_by_id(nodes, node_2)
     return geopy.distance.distance(coords_1, coords_2).miles
 
-def branch_and_bound(graph, start, end):
+
+def astar_revisited(KB, start, end):
     # Inizializzazione della coda con la tupla (distanza, nodo)
     queue = [(0, start)]
     # Dizionario per tenere traccia dei nodi visitati
     visited = set()
+
+    nodes = KB.get_all_nodes()[0]
+
     # Dizionario per tenere traccia del predecessore di ciascun nodo nel percorso più breve
-    predecessors = {node: (float('inf'), None) for node in graph.nodes}
+    predecessors = {node[0]: (float('inf'), None) for node in nodes}
 
     while queue:
         # Estraiamo il nodo con la minima distanza
-        current_distance, current_node = queue.pop(0)
+        current_distance, current_node = heapq.heappop(queue)
 
         # Se raggiungiamo il nodo di destinazione, costruiamo il percorso e terminiamo l'algoritmo
         if current_node == end:
@@ -31,13 +43,15 @@ def branch_and_bound(graph, start, end):
         visited.add(current_node)
 
         # Iteriamo sui vicini del nodo corrente
-        for neighbor, edge_data in graph[current_node].items():
-            if neighbor not in visited and 'flowSpeed' in edge_data[0] and 'length' in edge_data[0]:
+        for neighbor in KB.get_neighbors(current_node):
+            edge_flowSpeed = float(KB.get_edge_flowSpeed(current_node, neighbor))
+            edge_length = float(KB.get_edge_length(current_node, neighbor))
+            if neighbor not in visited:
                 # Calcoliamo il tempo di percorrenza dell'arco
                 # Consideriamo la lunghezza dell'arco e la velocità del flusso
-                weight = edge_data[0]['length'] / (edge_data[0]['flowSpeed'] * 0.44704)
+                weight = edge_length / (edge_flowSpeed * 0.44704)
                 # Calcoliamo la distanza euclidea tra il vicino e il nodo di destinazione
-                heuristic = euclidean_distance(graph, neighbor, end)
+                heuristic = euclidean_distance(nodes, neighbor, end)
 
                 # Calcoliamo la stima della distanza totale
                 total_estimate = current_distance + weight + heuristic
@@ -46,10 +60,8 @@ def branch_and_bound(graph, start, end):
                 if total_estimate < predecessors[neighbor][0]:
                     predecessors[neighbor] = (total_estimate, current_node)
                     # Aggiungiamo il vicino alla coda con la stima della distanza come priorità
-                    queue.append((total_estimate, neighbor))
+                    heapq.heappush(queue, (total_estimate, neighbor))
 
-        # Ordiniamo la coda in base alla stima della distanza totale
-        queue.sort()
 
     # Se non viene trovato un percorso, restituiamo una lista vuota
     return []

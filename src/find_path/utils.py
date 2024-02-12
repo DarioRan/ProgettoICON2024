@@ -2,7 +2,7 @@ import numpy as np
 import geopy.distance
 import folium
 from src.find_path.algorithms.Astar import astar_path
-from src.find_path.algorithms.BranchAndBound import branch_and_bound
+from src.find_path.algorithms.Astar_revisited import astar_revisited
 from src.find_path.algorithms.Dijkstra import dijkstra
 
 
@@ -119,8 +119,8 @@ def find_path_Dijkstra(graph, lat_start, lon_start, lat_end, lon_end):
     return shortest_path, street_names
 
 
-def find_path_BB(graph, lat_start, lon_start, lat_end, lon_end):
-    """Trova il percorso più breve tra due punti nel grafo utilizzando l'algoritmo A*.
+def find_path_Astar_revisited(graph, lat_start, lon_start, lat_end, lon_end):
+    """Trova il percorso più breve tra due punti nel grafo utilizzando l'algoritmo A* rivisitato.
 
     Parametri
     ----------
@@ -149,7 +149,7 @@ def find_path_BB(graph, lat_start, lon_start, lat_end, lon_end):
     for u, v, data in graph.edges(data=True):
         data['length'] = float(data['length'])
 
-    shortest_path = branch_and_bound(graph, start=start_node, end=end_node)
+    shortest_path = astar_revisited(graph, start=start_node, end=end_node)
 
     street_names = find_street_names(graph, shortest_path)
 

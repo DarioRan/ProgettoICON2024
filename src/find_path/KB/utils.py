@@ -1,7 +1,7 @@
 import numpy as np
 import geopy.distance
 import folium
-from src.find_path.KB.BranchAndBound import branch_and_bound
+from src.find_path.KB.Astar_revisited import astar_revisited
 
 
 
@@ -61,7 +61,7 @@ def find_street_names(KB, path):
 
     return street_names
 
-def find_path_BB(KB, lat_start, lon_start, lat_end, lon_end):
+def find_path_Astar_revisited(KB, lat_start, lon_start, lat_end, lon_end):
     """Trova il percorso più breve tra due punti nel grafo utilizzando l'algoritmo A*.
 
     Parametri
@@ -88,7 +88,7 @@ def find_path_BB(KB, lat_start, lon_start, lat_end, lon_end):
     start_node = find_closest_node(KB, lat_start, lon_start)
     end_node = find_closest_node(KB, lat_end, lon_end)
 
-    shortest_path = branch_and_bound(KB, start=start_node, end=end_node)
+    shortest_path = astar_revisited(KB, start=start_node, end=end_node)
 
     street_names = find_street_names(KB, shortest_path)
 

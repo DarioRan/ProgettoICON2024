@@ -5,7 +5,7 @@ import networkx as nx
 import pandas as pd
 
 from src.csp.csp_class import DriverAssignmentProblem
-from src.find_path.utils import calculate_distance, find_path_BB, generate_map, calculate_delivery_time
+from src.find_path.utils import calculate_distance, find_path_Astar_revisited, generate_map, calculate_delivery_time
 from joblib import load
 from KB.KB import KB
 import datetime
@@ -68,7 +68,7 @@ def calculate_path():
     lat_end, lon_end = end_coords['lat'], end_coords['lon']
 
     # Trova il percorso più breve usando l'algoritmo Branch and Bound
-    shortest_path, street_names = find_path_BB(G, lat_start, lon_start, lat_end, lon_end)
+    shortest_path, street_names = find_path_Astar_revisited(G, lat_start, lon_start, lat_end, lon_end)
 
     # Calcola la distanza percorsa
     total_distance = calculate_distance(G, shortest_path)
@@ -138,7 +138,7 @@ def trova_ristorante():
         restaurant_location_str = restaurant[0]['restaurant_location']
         restaurant_location_tuple = tuple(map(float, restaurant_location_str.strip('()').split(',')))
         restaurant_loc_json = {'lat': float(restaurant_location_tuple[0]), 'lon': float(restaurant_location_tuple[1])}
-        shortest_path, street_names = find_path_BB(G, restaurant_loc_json['lat'], restaurant_loc_json['lon'],
+        shortest_path, street_names = find_path_Astar_revisited(G, restaurant_loc_json['lat'], restaurant_loc_json['lon'],
                                                    data.get('start_coords')['lat'], data.get('start_coords')['lon'])
 
         delivery_time = calculate_delivery_time(G, shortest_path)

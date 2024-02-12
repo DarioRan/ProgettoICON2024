@@ -45,7 +45,7 @@ class BeliefNetwork:
         x_time = str(x_time)+':00'
         # Controllo della similarità del 90% con i nomi delle strade nel dataset
         similar_streets = [street_name for street_name in self.data['Street'].unique() if fuzz.ratio(street, street_name) >= 80]
-        if len(similar_streets)==0 or similar_streets is None:
+        if len(similar_streets) == 0 or similar_streets is None:
             print("ZERO")
             return 0
 
@@ -55,25 +55,25 @@ class BeliefNetwork:
 
             # Calcola la probabilità di blocco stradale per la strada simile trovata
             q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': similar_streets[0]})
-            print(q)
-            return q.get('road_closure').values[1]
+            q.normalize(inplace=True)
+            return q.values[0]
+            return 0
         except KeyError:
             # Se l'ora specificata non è presente per quella strada, ritorna probabilità 0
             #x_time alla mezzora successiva
             x_time = str(int(x_time.split(':')[0])+1)+':00'
             q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': similar_streets[0]})
-            print(q['road_closure'])
-            return q.get('road_closure').values[1]
+            return q.values[0]
 
     def predict_road_closure_probability(self, G, x_time, path):
-        prob = 1
         street_names = find_street_names(G, path)
-        road_prob_cloasures = []
+        max_prob = 0
         for i in range(len(street_names) - 1):
-            print(street_names[i])
-            road_prob_cloasures.append(self.get_road_closure_probability(str(x_time), street_names[i]))
+            prob = self.get_road_closure_probability(str(x_time), street_names[i])
+            if prob > max_prob:
+                max_prob = prob
 
-        return road_prob_cloasures.sort()[0]
+        return max_prob
 
 
 # test class

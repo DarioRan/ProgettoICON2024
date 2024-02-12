@@ -184,7 +184,7 @@ class NeuralRegressor:
                 epoch_losses_train.append(epoch_loss)  # Aggiungi la perdita media dell'epoca
                 print(f"Epoch {epoch + 1}/{hyperparams['epochs']}, Loss: {epoch_loss}")
 
-                if epoch_loss <est_loss:
+                if epoch_loss < best_loss:
                     best_loss = epoch_loss
                     best_params = hyperparams
                     best_epoch = epoch

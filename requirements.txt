@@ -14,3 +14,5 @@ git+https://github.com/yuce/pyswip@master#egg=pyswip
 PuLP=2.8.0
 geopandas=0.14.3
 shapely=2.0.2
+fuzzywuzzy
+python-Levenshtein

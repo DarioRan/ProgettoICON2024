@@ -17,7 +17,7 @@ app = Flask(__name__)
 G = nx.read_graphml('../dataset/newyork_final.graphml')
 
 # Carica dataset incidenti
-accidents_df = pd.read_csv('../dataset/road_closure.csv')
+accidents_df = pd.read_csv('../dataset/street_status_one_week.csv')
 
 KB = KB()
 
@@ -33,7 +33,8 @@ for cuisine_type in cuisine_types:
 start_coords = None
 end_coords = None
 
-
+bn = BeliefNetwork(accidents_df)
+bn.train_model()
 @app.route('/')
 def index():
     return render_template('index.html', cuisine_types=cuisine_types, cuisine_dishes_map=cuisine_dishes_map)
@@ -106,8 +107,7 @@ def trova_ristorante():
 
     linear_regressor = load('supervised_learning/output/models/linear_regressor.joblib')
 
-    bn = BeliefNetwork(accidents_df)
-    bn.train_model()
+
 
     # lista temporanea, verrà sostituita da csp
     temp_list = []
@@ -155,10 +155,9 @@ def trova_ristorante():
         time = str(time)
 
         road_closure_prob = bn.predict_road_closure_probability(G, time, shortest_path)
-        print(road_closure_prob)
 
         temp_list2.append((restaurant[0]['restaurant_name'], restaurant[0]['restaurant_location'],
-                           tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec, road_closure_prob))
+                           tot_delivery_time_seconds, delivery_time_sec, preparation_time_sec, round(road_closure_prob*100,3)))
 
     temp_list2.sort(key=lambda x: x[2])
 

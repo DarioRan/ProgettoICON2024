@@ -42,34 +42,28 @@ class BeliefNetwork:
         return q
     """
     def get_road_closure_probability(self, x_time, street):
-        x_time = str(x_time)+':00'
+        x_time = str(x_time)
         # Controllo della similarità del 90% con i nomi delle strade nel dataset
-        similar_streets = [street_name for street_name in self.data['Street'].unique() if fuzz.ratio(street, street_name) >= 80]
+        similar_streets = [street_name for street_name in self.data['Street'].unique() if fuzz.ratio(street, street_name) >= 85]
         if len(similar_streets) == 0 or similar_streets is None:
-            print("ZERO")
+            print('Street not found')
             return 0
 
         try:
-            # crea l'oggetto per l'inferenza
             inference = VariableElimination(self.model)
 
-            # Calcola la probabilità di blocco stradale per la strada simile trovata
             q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': similar_streets[0]})
             q.normalize(inplace=True)
-            return q.values[0]
-            return 0
+            return q.values[1]
         except KeyError:
-            # Se l'ora specificata non è presente per quella strada, ritorna probabilità 0
-            #x_time alla mezzora successiva
-            x_time = str(int(x_time.split(':')[0])+1)+':00'
-            q = inference.query(variables=['road_closure'], evidence={'Time': x_time, 'Street': similar_streets[0]})
-            return q.values[0]
+            return 0
 
     def predict_road_closure_probability(self, G, x_time, path):
         street_names = find_street_names(G, path)
         max_prob = 0
         for i in range(len(street_names) - 1):
             prob = self.get_road_closure_probability(str(x_time), street_names[i])
+            print(prob)
             if prob > max_prob:
                 max_prob = prob
 
@@ -81,7 +75,7 @@ class BeliefNetwork:
 if __name__ == '__main__':
 
     # read data
-    data = pd.read_csv('../../dataset/accidents_ny.csv')
+    data = pd.read_csv('../../dataset/street_status_one_week.csv')
     # create belief network
     BN = BeliefNetwork(df=data)
     # train model

@@ -1,11 +1,11 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from src.supervised_learning.boosted_learner import BoostedRegressor
-from src.supervised_learning.neural_learner import NeuralRegressor
-from src.supervised_learning.ridge_learner import RidgeRegressor
-from src.supervised_learning.linear_learner import LinearRegressor
-from src.supervised_learning.lasso_learner import LassoRegressor
+from supervised_learning.boosted_learner import BoostedRegressor
+from supervised_learning.neural_learner import NeuralRegressor
+from supervised_learning.ridge_learner import RidgeRegressor
+from supervised_learning.linear_learner import LinearRegressor
+from supervised_learning.lasso_learner import LassoRegressor
 
 df = pd.read_csv('../../dataset/dishes_df.csv')
 

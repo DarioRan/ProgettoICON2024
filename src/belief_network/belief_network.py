@@ -4,7 +4,7 @@ from pgmpy.models import BayesianNetwork
 from pgmpy.estimators import MaximumLikelihoodEstimator
 from pgmpy.inference import VariableElimination
 
-from src.find_path.utils import find_street_names
+from find_path.utils import find_street_names
 from fuzzywuzzy import fuzz
 
 

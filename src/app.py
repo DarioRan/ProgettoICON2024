@@ -4,12 +4,12 @@ from flask import Flask, render_template, request, jsonify
 import networkx as nx
 import pandas as pd
 
-from src.csp.csp_class import DriverAssignmentProblem
-from src.find_path.utils import calculate_distance, find_path_Astar_revisited, generate_map, calculate_delivery_time
+from csp.csp_class import DriverAssignmentProblem
+from find_path.utils import calculate_distance, find_path_Astar_revisited, generate_map, calculate_delivery_time
 from joblib import load
 from KB.KB import KB
 import datetime
-from src.belief_network.belief_network import BeliefNetwork
+from belief_network.belief_network import BeliefNetwork
 
 app = Flask(__name__)
 

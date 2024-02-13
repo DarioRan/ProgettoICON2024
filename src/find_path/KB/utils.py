@@ -1,7 +1,7 @@
 import numpy as np
 import geopy.distance
 import folium
-from src.find_path.KB.Astar_revisited import astar_revisited
+from find_path.KB.Astar_revisited import astar_revisited
 
 
 

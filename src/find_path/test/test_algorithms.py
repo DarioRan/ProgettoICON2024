@@ -2,7 +2,7 @@ import networkx as nx
 import time
 import random
 from geopy.distance import geodesic
-from src.find_path import utils
+from find_path import utils
 
 if __name__ == "__main__":
     # Leggi il file GraphML

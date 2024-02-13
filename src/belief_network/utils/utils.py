@@ -1,5 +1,5 @@
-from src.belief_network.belief_network import BeliefNetwork
-from src.find_path.utils import calculate_distance, find_street_names
+from belief_network.belief_network import BeliefNetwork
+from find_path.utils import calculate_distance, find_street_names
 def predict_road_closure_probability(df,G, time, path):
     bn = BeliefNetwork(df=df)
     bn.train_model()

@@ -48,7 +48,8 @@ Segui i passaggi seguenti per avviare l'applicazione:
 4. **Avvio dell'applicazione**: Una volta installate le dipendenze, puoi avviare l'applicazione eseguendo il file app.py utilizzando Python.
 
     ```bash
-    python src/app.py
+    cd src
+    python app.py
     ```
 5. **Accesso all'interfaccia utente**: Una volta avviato, puoi accedere all'interfaccia utente dell'applicazione tramite il tuo browser preferito. L'applicazione sarà in ascolto sulla porta http://127.0.0.1:5000
 

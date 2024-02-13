@@ -1,9 +1,9 @@
 import numpy as np
 import geopy.distance
 import folium
-from src.find_path.algorithms.Astar import astar_path
-from src.find_path.algorithms.Astar_revisited import astar_revisited
-from src.find_path.algorithms.Dijkstra import dijkstra
+from find_path.algorithms.Astar import astar_path
+from find_path.algorithms.Astar_revisited import astar_revisited
+from find_path.algorithms.Dijkstra import dijkstra
 
 
 def find_closest_node(graph, lat, lon):

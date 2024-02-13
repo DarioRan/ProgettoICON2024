@@ -2,8 +2,8 @@ import networkx as nx
 import time
 import random
 from geopy.distance import geodesic
-from src.find_path import utils as utils1
-from src.find_path.KB import utils as utils2
+from find_path import utils as utils1
+from find_path.KB import utils as utils2
 from KB.KB import KB
 
 if __name__ == "__main__":

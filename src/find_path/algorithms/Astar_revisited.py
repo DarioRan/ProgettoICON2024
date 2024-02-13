@@ -2,17 +2,13 @@ import geopy.distance
 import heapq
 
 def euclidean_distance(graph, node_1, node_2):
-    # Calcola la distanza euclidea tra due nodi nel piano
     coords_1 = graph.nodes[node_1]['y'], graph.nodes[node_1]['x']
     coords_2 = graph.nodes[node_2]['y'], graph.nodes[node_2]['x']
     return geopy.distance.distance(coords_1, coords_2).miles
 
 def astar_revisited(graph, start, end):
-    # Inizializzazione della coda con la tupla (distanza, nodo)
     queue = [(0, start)]
-    # Dizionario per tenere traccia dei nodi visitati
     visited = set()
-    # Dizionario per tenere traccia del predecessore di ciascun nodo nel percorso più breve
     predecessors = {node: (float('inf'), None) for node in graph.nodes}
 
     while queue:

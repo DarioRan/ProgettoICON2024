@@ -1,6 +1,3 @@
-# impara probabilità a posteriori da accidents_ny.csv
-# data l'ora e la strada, calcola la probabilità di blocco stradale
-#
 
 import pandas as pd
 from pgmpy.models import BayesianNetwork
@@ -43,10 +40,8 @@ class BeliefNetwork:
     """
     def get_road_closure_probability(self, x_time, street):
         x_time = str(x_time)
-        # Controllo della similarità del 90% con i nomi delle strade nel dataset
         similar_streets = [street_name for street_name in self.data['Street'].unique() if fuzz.ratio(street, street_name) >= 85]
         if len(similar_streets) == 0 or similar_streets is None:
-            print('Street not found')
             return 0
 
         try:
@@ -63,29 +58,14 @@ class BeliefNetwork:
         max_prob = 0
         for i in range(len(street_names) - 1):
             prob = self.get_road_closure_probability(str(x_time), street_names[i])
-            print(prob)
             if prob > max_prob:
                 max_prob = prob
 
         return max_prob
 
 
-# test class
 
-if __name__ == '__main__':
 
-    # read data
-    data = pd.read_csv('../../dataset/street_status_one_week.csv')
-    # create belief network
-    BN = BeliefNetwork(df=data)
-    # train model
-    BN.train_model()
-    # predict road closure probability
-    print(BN.get_road_closure_probability('10:00', 'street1'))
-    print(BN.get_road_closure_probability('10:00', 'street2'))
-    print(BN.get_road_closure_probability('10:00', 'street3'))
-    print(BN.get_road_closure_probability('10:00', 'street4'))
-    print(BN.get_road_closure_probability('10:00', 'street5'))
 
 
 

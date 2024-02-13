@@ -42,12 +42,10 @@ class NeuralRegressor:
         self.categorical_features = categorical_features
         self.numerical_features = numerical_features
         self.model = None
-        #self.cross_validation = cross_validation
         self.param_tuning = param_tuning
         self.initialize()
 
     def load_data(self):
-        # Convert 'restaurant_location' from string to tuple of floats
         self.dishes_df[['latitude', 'longitude']] = self.dishes_df['restaurant_location'].apply(
             lambda loc: pd.Series(ast.literal_eval(loc))
         )
@@ -66,31 +64,24 @@ class NeuralRegressor:
         print(self.X)
 
     def train_test_split(self):
-        # Split the data into training and test sets
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X, self.y, test_size=self.test_size, random_state=self.random_state)
 
     def initialize_model(self, dropout):
-        # Determine the input shape for the PyTorch model
         input_shape = self.X_train.shape[1]
-        # Instantiate the PyTorch model
         self.model = PyTorchRegressor(input_shape, dropout)
 
     def train_model(self, epochs=100, batch_size=10):
-        # Convert the data to PyTorch tensors
 
         X_train_tensor = torch.tensor(self.X_train.todense().astype(np.float32))
         y_train_tensor = torch.tensor(self.y_train.astype(np.float32))
 
-        # Create a DataLoader to handle batching of data
         train_data = TensorDataset(X_train_tensor, y_train_tensor)
         train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
 
-        # Define the loss function and optimizer
         criterion = nn.MSELoss()
         optimizer = optim.Adam(self.model.parameters())
 
-        # Train the model
         self.model.train()  # Set the model to training mode
         for epoch in range(epochs):
             for batch_idx, (data, target) in enumerate(train_loader):
@@ -118,7 +109,6 @@ class NeuralRegressor:
         X_train_tensor = torch.tensor(self.X_train.todense().astype(np.float32))
         y_train_tensor = torch.tensor(self.y_train.astype(np.float32))
 
-        # Create a DataLoader to handle batching of data
         train_data = TensorDataset(X_train_tensor, y_train_tensor)
 
         loss_by_hyperparam = {k: {} for k in param_grid}
@@ -270,14 +260,11 @@ class NeuralRegressor:
 
 
     def predict(self, new_data):
-        # Preprocess the new data
         new_data = self.preprocessor.transform(new_data)
-        # Convert the new data to a PyTorch tensor
         new_data_tensor = torch.tensor(new_data.todense().astype(np.float32))
 
-        # Make predictions using the model
-        self.model.eval()  # Set the model to evaluation mode
-        with torch.no_grad():  # Disable gradient calculation
+        self.model.eval()
+        with torch.no_grad():
             predictions = self.model(new_data_tensor)
         return predictions
 
@@ -365,20 +352,18 @@ class NeuralRegressor:
         plt.savefig('output/train_test_loss_best params.png')
 
     def calculate_bic(self, mse):
-        n = len(self.y_test)  # Numero di osservazioni nel test set
+        n = len(self.y_test)
         k = self.calculate_num_params()
-        rss = mse * n  # Somma residua dei quadrati
+        rss = mse * n
         bic = n * np.log(rss / n) + k * np.log(n)
         return bic
 
     def evaluate_model(self):
-        # Convert the test data to PyTorch tensors
         X_test_tensor = torch.tensor(self.X_test.todense().astype(np.float32))
         y_test_tensor = torch.tensor(self.y_test.astype(np.float32))
 
-        # Evaluate the model
-        self.model.eval()  # Set the model to evaluation mode
-        with torch.no_grad():  # Disable gradient calculation
+        self.model.eval()
+        with torch.no_grad():
             predictions = self.model(X_test_tensor)
             mse = torch.mean((predictions - y_test_tensor) ** 2)
             rmse = torch.sqrt(mse)

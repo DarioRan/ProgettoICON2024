@@ -6,8 +6,6 @@ from src.supervised_learning.neural_learner import NeuralRegressor
 from src.supervised_learning.ridge_learner import RidgeRegressor
 from src.supervised_learning.linear_learner import LinearRegressor
 from src.supervised_learning.lasso_learner import LassoRegressor
-from src.unsupervised_learning.kmn_learner import KMNClusterer
-from src.supervised_learning.SGDLearner import SGDLeaner
 
 df = pd.read_csv('../../dataset/dishes_df.csv')
 
@@ -22,8 +20,6 @@ linear_regressor_with_cv = LinearRegressor(df, True)
 linear_regressor.save_model()
 linear_regressor_with_cv.save_model()
 
-#sgd_regressor = SGDLeaner(df)
-#sgd_regressor_with_cv = SGDLeaner(df, True  , random_state=42)
 
 ridge_regressor = RidgeRegressor(df, alpha=0.1)
 ridge_regressor.save_model()
@@ -34,7 +30,6 @@ lasso_regressor = LassoRegressor(df,  alpha=0.1)
 lasso_regressor.save_model()
 lasso_regressor_with_cv = LassoRegressor(df, True, alpha=0.1)
 lasso_regressor_with_cv.save_model()
-#implementare nl cv
 
 neural_regressor = NeuralRegressor(df, False, False)
 neural_regressor.save_model()

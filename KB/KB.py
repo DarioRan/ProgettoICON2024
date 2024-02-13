@@ -4,6 +4,14 @@ from pathlib import Path
 
 
 def format_dishes(object_string):
+    """
+    Format dishes string in a list of dictionaries
+
+    :param object_string: the string to format
+
+    :return: a list of dictionaries
+
+    """
     object_string = object_string.replace("['{}(,(:(dish_name, ", "").replace("), :(preparation_time, ",
                                                                               ", ").replace(
         ")))', '{}(,(:(dish_name, ", ", ").replace(")))']", "")
@@ -27,22 +35,44 @@ class KB:
         self.prolog_graph.consult(kb_file_path_graph)
 
     def get_restaurants_by_cuisine(self, cuisine_type):
+        """
+        Get the restaurants by cuisine type
+
+        :param cuisine_type: the cuisine type
+
+        :return: a list of restaurants
+        """
         list_query = list(self.prolog_orders.query(
             f"findall(RestaurantName, restaurants_by_cuisine('{cuisine_type}', RestaurantName), Restaurants)"))
         restaurants = list_query[0]['Restaurants'] if list_query else []
         return restaurants
 
     def get_dishes_by_cuisine(self, cuisine_type):
+        """
+        Get the dishes by cuisine type
+
+        :param cuisine_type: the cuisine type
+
+        :return: a list of dishes
+
+        """
         dishes = self.prolog_orders.query(f"findall(Dish, dishes_by_cuisine('{cuisine_type}', Dish), Dishes)")
         dishes_list = [d['Dishes'] for d in dishes]
         return dishes_list[0]
 
     def get_all_cuisine_types(self):
+        """
+        Get all the cuisine types
+
+        :return: a list of cuisine types
+
+        """
         cuisine_types = list(self.prolog_orders.query("setof(CuisineType, Dish^dish(CuisineType, Dish), CuisineTypes)"))
         cuisine_types_list = cuisine_types[0]['CuisineTypes'] if cuisine_types else []
         return cuisine_types_list
 
     def get_restaurant_location_by_cuisine(self, cuisine_type):
+
         list_query = self.prolog_orders.query(
             f"restaurant_loc_by_cuisine('{cuisine_type}', RestaurantName, RestaurantLocation)")
         restaurants_data = []
@@ -57,6 +87,12 @@ class KB:
         return df
 
     def get_dishes_info(self):
+        """
+        Get the dishes info
+
+        :return: a DataFrame with the dishes info
+
+        """
         dishes = self.prolog_orders.query("get_dishes_info(RestaurantName,RestaurantLocation,DayOfWeek,Dishes)")
         restaurants_data = []
 
@@ -77,6 +113,12 @@ class KB:
         return df
 
     def get_all_nodes(self):
+        """
+        Get all the nodes
+
+        :return: a list of nodes
+
+        """
         nodes = []
         result = list(self.prolog_graph.query("get_all_nodes(Nodes)"))
         if result:
@@ -88,6 +130,15 @@ class KB:
             return None
 
     def get_street_name(self, source, target):
+        """
+        Get the street name
+
+        :param source: the source node
+
+        :param target: the target node
+
+        :return: the street name
+        """
         query = "get_street_name('{}', '{}', StreetName)".format(source, target)
         result = list(self.prolog_graph.query(query))
         if result:
@@ -97,6 +148,16 @@ class KB:
             return None
 
     def get_edge_length(self, source, target):
+        """
+        Get the edge length
+
+        :param source: the source node
+
+        :param target: the target node
+
+        :return: the edge length
+
+        """
         query = "get_edge_length('{}', '{}', Length)".format(source, target)
         result = list(self.prolog_graph.query(query))
         if result:
@@ -106,6 +167,16 @@ class KB:
             return None
 
     def get_edge_flowSpeed(self, source, target):
+        """
+        Get the edge flow speed
+
+        :param source: the source node
+
+        :param target: the target node
+
+        :return: the edge flow speed
+
+        """
         query = "get_edge_flowSpeed('{}', '{}', FlowSpeed)".format(source, target)
         result = list(self.prolog_graph.query(query))
         if result:
@@ -115,10 +186,17 @@ class KB:
             return None
 
     def get_neighbors(self, source):
+        """
+        Get the neighbors of a node
+
+        :param source: the source node
+
+        :return: a list of neighbors
+
+        """
         query = f"get_neighbors('{source}',Neighbors)"
         result = list(self.prolog_graph.query(query))
         return result[0]['Neighbors']
-
 
 
 

@@ -20,6 +20,12 @@ ristoranti_per_cucina = {
 
 # Genera dati casuali per le nuove righe
 def generate_random_data():
+    """
+    Generate random data for the new rows
+
+    :return: a dictionary with the random data
+
+    """
     return {
         'order_id': random.randint(10000, 99999),
         'customer_id': random.randint(1000, 9999),

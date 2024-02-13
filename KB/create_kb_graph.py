@@ -2,6 +2,13 @@ import xml.etree.ElementTree as ET
 
 
 def parse_graphml(filename):
+    """
+    Parse a GraphML file and return the nodes and edges
+
+    :param filename: the name of the GraphML file to parse
+
+    :return: a tuple containing the nodes and edges
+    """
     tree = ET.parse(filename)
     root = tree.getroot()
 
@@ -24,6 +31,13 @@ def parse_graphml(filename):
 
 
 def add_prolog_queries(output_filename):
+    """
+    Add Prolog queries to the output file
+    :param output_filename:
+
+    :return:
+
+    """
     with open(output_filename, 'a') as f:
         f.write("\n% Queries\n")
         f.write("get_all_nodes(Nodes) :- findall([Osmid, Lat, Lon], node(Osmid, Lat, Lon), Nodes).\n")
@@ -34,6 +48,14 @@ def add_prolog_queries(output_filename):
 
 
 def generate_prolog_facts(nodes, edges):
+    """
+    Generate Prolog facts from the nodes and edges
+
+    :param nodes: the nodes of the graph
+
+    :param edges: the edges of the graph
+
+    """
     prolog_facts = []
 
     for node_id, data in nodes:
@@ -55,6 +77,14 @@ def generate_prolog_facts(nodes, edges):
 
 
 def write_prolog_file(prolog_facts, output_filename):
+    """
+    Write the Prolog facts to a file
+
+    :param prolog_facts: the Prolog facts to write
+
+    :param output_filename: the name of the file to write to
+
+    """
     with open(output_filename, 'w') as f:
         for fact in prolog_facts:
             f.write(fact + '\n')

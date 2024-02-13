@@ -23,6 +23,15 @@ dataset['rider'] = None
 
 # Definisci la funzione per generare i rider
 def generate_riders(location_group):
+    """"
+
+    Get the riders for a location group
+
+    :param location_group: the location group
+
+    :return: a list of riders
+
+    """
     riders = []
     for _ in range(5):
         rider_id = random.randint(0, 100000)

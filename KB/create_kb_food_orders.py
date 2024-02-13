@@ -2,6 +2,15 @@ import pandas as pd
 
 
 def write_fact_to_file(fact, file_path):
+    """
+    Write a fact to a file, if it is not already present
+
+    :param fact: the fact to write
+
+    :param file_path: the path of the file to write to
+
+    :return: None
+    """
     # Verifica se il fatto è già presente
     with open(file_path, 'r', encoding='utf-8') as file:
         existing_content = file.read()
@@ -13,6 +22,14 @@ def write_fact_to_file(fact, file_path):
 
 
 def writeOrdersInfo(dataSet):
+    """
+    Write the orders information to a file
+
+    :param dataSet: the dataset containing the orders information
+
+    :return: None
+
+    """
     file_path = 'knowledge_base_orders.pl'
     with open(file_path, "w", encoding="utf-8"):  # Sovrascrivi il file (svuotalo)
         write_fact_to_file(":- encoding(utf8)", file_path)
@@ -32,6 +49,13 @@ def writeOrdersInfo(dataSet):
 
 
 def writeDishesInfo():
+    """
+
+    Write the dishes information to a file
+
+    :return: None
+
+    """
     menu = {
         'Korean': ['Bibimbap', 'Kimchi', 'Bulgogi', 'Japchae', 'Samgyeopsal', 'Doenjang Jjigae', 'Tteokbokki', 'Gimbap',
                    'Sundubu Jjigae', 'Galbi'],
@@ -77,6 +101,13 @@ def writeDishesInfo():
 
 
 def add_prolog_queries(output_filename):
+    """
+    Add Prolog queries to the output file
+
+    :param output_filename: the name of the file to write to
+
+    :return: None
+    """
     with open(output_filename, 'a') as f:
         f.write("\n% Queries\n")
         f.write("restaurants_by_cuisine(CuisineType, RestaurantName) :- "
@@ -91,6 +122,13 @@ def add_prolog_queries(output_filename):
 
 
 def fix_orders(file_path):
+    """
+    Fix the orders file
+
+    :param file_path: the path of the file to fix
+
+    :return: None
+    """
     # Leggi il contenuto del file
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
